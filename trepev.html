@@ -1,0 +1,2552 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TRePEV Lab</title>
+<meta name="description" content="Aprende y entrena la Teoría de Repulsión de Pares de Electrones de la Capa de Valencia (TRePEV/VSEPR) para 2.º de Bachillerato y la PAU.">
+<script>
+  /* Aplica el tema guardado antes de pintar para evitar parpadeos */
+  try { var t = localStorage.getItem('trepev-theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+</script>
+<style>
+/* =========================================================
+   TOKENS DE DISEÑO (modo claro / oscuro)
+   ========================================================= */
+:root{
+  --bg:#f3f5fa; --surface:#ffffff; --surface-2:#eef1f8; --surface-3:#e4e9f4;
+  --text:#121829; --muted:#4f5a73; --border:#d6dceb;
+  --primary:#2b55e6; --primary-ink:#ffffff; --primary-soft:#e5ebff; --primary-strong:#1a3fbf;
+  --central:#2f6fed; --ligand:#b6bfcc; --lp:#f5b50a; --lp-ink:#b97800; --bond:#8a93a3; --angle:#e8501a; --dip:#0b9b6f; --res:#a23bc4;
+  --ok:#0f7a48; --ok-soft:#e1f5ea; --bad:#c22626; --bad-soft:#fde8e8; --warn:#8f4f00; --warn-soft:#fff2d6; --info-soft:#e7f0ff;
+  --viewer-a:#ffffff; --viewer-b:#e7ecf7;
+  --shadow:0 1px 2px rgba(16,24,40,.05),0 6px 20px rgba(16,24,40,.07);
+  --shadow-lg:0 2px 6px rgba(16,24,40,.06),0 18px 40px rgba(16,24,40,.10);
+  --focus:#ff9f1c;
+  --radius:18px;
+  --font: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0c1020; --surface:#151b2e; --surface-2:#1c2340; --surface-3:#252e52;
+    --text:#eef1fb; --muted:#a6b0c9; --border:#2d365a;
+    --primary:#7d9cff; --primary-ink:#0a0f22; --primary-soft:#232d58; --primary-strong:#a9bdff;
+    --central:#5b8cff; --ligand:#c6cdd8; --lp:#ffc83d; --lp-ink:#ffc83d; --bond:#9aa3b3; --angle:#ff7a45; --dip:#3fd6a0; --res:#d77cf2;
+    --ok:#4fd393; --ok-soft:#14352a; --bad:#ff7b7b; --bad-soft:#3c1d22; --warn:#ffc061; --warn-soft:#3a2d12; --info-soft:#1b2750;
+    --viewer-a:#1d2541; --viewer-b:#0f1427;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+    --shadow-lg:0 2px 6px rgba(0,0,0,.35),0 18px 40px rgba(0,0,0,.45);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0c1020; --surface:#151b2e; --surface-2:#1c2340; --surface-3:#252e52;
+  --text:#eef1fb; --muted:#a6b0c9; --border:#2d365a;
+  --primary:#7d9cff; --primary-ink:#0a0f22; --primary-soft:#232d58; --primary-strong:#a9bdff;
+  --central:#5b8cff; --ligand:#c6cdd8; --lp:#ffc83d; --lp-ink:#ffc83d; --bond:#9aa3b3; --angle:#ff7a45; --dip:#3fd6a0; --res:#d77cf2;
+  --ok:#4fd393; --ok-soft:#14352a; --bad:#ff7b7b; --bad-soft:#3c1d22; --warn:#ffc061; --warn-soft:#3a2d12; --info-soft:#1b2750;
+  --viewer-a:#1d2541; --viewer-b:#0f1427;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  --shadow-lg:0 2px 6px rgba(0,0,0,.35),0 18px 40px rgba(0,0,0,.45);
+  color-scheme: dark;
+}
+
+/* =========================================================
+   BASE
+   ========================================================= */
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);font-size:16px;line-height:1.5;padding-bottom:64px}
+h1,h2,h3,h4{line-height:1.25;margin:0 0 .5em}
+h2{font-size:1.2rem}
+h3{font-size:1.05rem}
+p{margin:0 0 .75em}
+a{color:var(--primary)}
+sub,sup{font-size:.72em;line-height:0}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:10px}
+.skip{position:absolute;left:-999px;top:8px;background:var(--surface);padding:8px 12px;border-radius:8px;z-index:100}
+.skip:focus{left:8px}
+.muted{color:var(--muted)}
+.small{font-size:.875rem}
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.hidden{display:none!important}
+
+/* =========================================================
+   CABECERA Y PESTAÑAS
+   ========================================================= */
+.topbar{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+.topbar-in{max-width:1320px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:14px}
+.brand{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.brand-logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--primary),#8a5cf6);display:grid;place-items:center;box-shadow:var(--shadow)}
+.brand strong{display:block;font-size:1.02rem}
+.brand span{display:block;font-size:.75rem;color:var(--muted)}
+.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;flex:1;padding:2px}
+.tabs::-webkit-scrollbar{display:none}
+.tab{border:0;background:transparent;padding:10px 14px;border-radius:12px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap;min-height:44px;transition:background .2s,color .2s}
+.tab:hover{background:var(--surface-2);color:var(--text)}
+.tab[aria-selected="true"]{background:var(--surface);color:var(--primary-strong);box-shadow:var(--shadow)}
+.tab .n{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:7px;background:var(--surface-3);font-size:.75rem;margin-right:6px;color:var(--muted)}
+.tab[aria-selected="true"] .n{background:var(--primary);color:var(--primary-ink)}
+.icon-btn{width:44px;height:44px;border-radius:12px;border:1px solid var(--border);background:var(--surface);cursor:pointer;display:grid;place-items:center;flex-shrink:0;box-shadow:var(--shadow)}
+@media (max-width:760px){
+  .brand span{display:none}
+  .topbar-in{flex-wrap:wrap;gap:8px}
+  .tabs{order:3;flex-basis:100%}
+  .brand{flex:1}
+}
+
+/* =========================================================
+   CONTENEDORES Y COMPONENTES
+   ========================================================= */
+main{max-width:1320px;margin:0 auto;padding:18px 16px 24px}
+.tabpanel{animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
+.card + .card{margin-top:14px}
+.section-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:14px}
+.section-head h1{font-size:1.45rem;margin:0}
+.section-head p{margin:2px 0 0;color:var(--muted)}
+.label{display:block;font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px}
+.field{margin-bottom:16px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:9px 16px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-weight:650;cursor:pointer;transition:transform .12s,background .2s,border-color .2s,box-shadow .2s;text-align:center}
+.btn:hover{background:var(--surface-2)}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--primary);color:var(--primary-ink);border-color:transparent;box-shadow:0 4px 14px color-mix(in srgb,var(--primary) 35%,transparent)}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.soft{background:var(--primary-soft);border-color:transparent;color:var(--primary-strong)}
+.btn.sm{min-height:36px;padding:6px 12px;font-size:.9rem;border-radius:10px}
+.btn[disabled]{opacity:.45;cursor:not-allowed;transform:none}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:40px;padding:7px 13px;border-radius:999px;border:1px solid var(--border);background:var(--surface);font-weight:650;cursor:pointer;transition:all .15s}
+.chip:hover{border-color:var(--primary)}
+.chip[aria-pressed="true"]{background:var(--primary-soft);border-color:var(--primary);color:var(--primary-strong)}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:.72rem;font-weight:750;padding:3px 9px;border-radius:999px;letter-spacing:.02em;white-space:nowrap}
+.badge.ess{background:var(--ok-soft);color:var(--ok)}
+.badge.amp{background:var(--warn-soft);color:var(--warn)}
+.badge.polar{background:#ffe7ef;color:#b0174f}
+.badge.apolar{background:var(--info-soft);color:var(--primary-strong)}
+:root[data-theme="dark"] .badge.polar{background:#47182b;color:#ff9cbd}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .badge.polar{background:#47182b;color:#ff9cbd}}
+.msg{border-radius:12px;padding:10px 12px;font-size:.92rem;margin:10px 0;border:1px solid transparent}
+.msg.warn{background:var(--warn-soft);color:var(--text);border-color:color-mix(in srgb,var(--warn) 35%,transparent)}
+.msg.ok{background:var(--ok-soft);border-color:color-mix(in srgb,var(--ok) 35%,transparent)}
+.msg.bad{background:var(--bad-soft);border-color:color-mix(in srgb,var(--bad) 35%,transparent)}
+.msg.info{background:var(--info-soft);border-color:color-mix(in srgb,var(--primary) 30%,transparent)}
+.msg b.t{display:block;margin-bottom:2px}
+details{border-top:1px solid var(--border);padding-top:10px;margin-top:10px}
+summary{cursor:pointer;font-weight:700;min-height:36px;display:flex;align-items:center;gap:6px;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▸";transition:transform .2s;display:inline-block;color:var(--primary)}
+details[open] > summary::before{transform:rotate(90deg)}
+.kbd{font-family:ui-monospace,Menlo,monospace;font-size:.8em;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:1px 5px}
+
+/* Interruptores accesibles */
+.switches{display:grid;gap:4px}
+.switch{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px;cursor:pointer;padding:2px 0}
+.switch input{position:absolute;opacity:0;width:1px;height:1px}
+.switch .track{width:46px;height:28px;border-radius:999px;background:var(--surface-3);position:relative;transition:background .2s;flex-shrink:0;border:1px solid var(--border)}
+.switch .track::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s}
+.switch input:checked + .track{background:var(--primary)}
+.switch input:checked + .track::after{transform:translateX(18px)}
+.switch input:focus-visible + .track{outline:3px solid var(--focus);outline-offset:2px}
+.switch .sw-l{display:flex;align-items:center;gap:8px}
+.dot{width:12px;height:12px;border-radius:50%;display:inline-block;flex-shrink:0}
+
+/* =========================================================
+   LABORATORIO
+   ========================================================= */
+.lab-grid{display:grid;grid-template-columns:300px minmax(0,1fr) 320px;grid-template-areas:"ctrl view res";gap:16px;align-items:start}
+.lab-ctrl{grid-area:ctrl}.lab-view{grid-area:view;position:sticky;top:84px}.lab-res{grid-area:res}
+@media (max-width:1150px){
+  .lab-grid{grid-template-columns:1fr 1fr;grid-template-areas:"view view" "ctrl res"}
+  .lab-view{position:static}
+}
+@media (max-width:720px){
+  .lab-grid{grid-template-columns:1fr;grid-template-areas:"view" "ctrl" "res"}
+}
+.atom-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.atom-btn{aspect-ratio:1;min-height:44px;border-radius:12px;border:1px solid var(--border);background:var(--surface);font-weight:800;cursor:pointer;font-size:1rem;transition:all .15s;position:relative}
+.atom-btn:hover{border-color:var(--central)}
+.atom-btn[aria-checked="true"]{background:var(--central);color:#fff;border-color:transparent;box-shadow:0 4px 14px color-mix(in srgb,var(--central) 40%,transparent)}
+.counters{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.counter{background:var(--surface-2);border-radius:14px;padding:10px;text-align:center}
+.counter .ct{font-size:.82rem;font-weight:700;color:var(--muted);margin-bottom:6px;display:block}
+.counter .ct b{color:var(--text)}
+.counter .cbox{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.round{width:48px;height:48px;border-radius:14px;border:0;font-size:1.6rem;font-weight:700;cursor:pointer;background:var(--surface);box-shadow:var(--shadow);line-height:1;transition:transform .1s}
+.round:active{transform:scale(.92)}
+.round.x{color:var(--central)}
+.round.e{color:var(--lp-ink)}
+.counter output{font-size:2rem;font-weight:800;min-width:40px;display:inline-block}
+.bump{animation:bump .35s ease}
+@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.35)}100%{transform:scale(1)}}
+.shake{animation:shake .4s ease}
+@keyframes shake{0%,100%{transform:none}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+
+/* Visor 3D */
+.viewer{position:relative;width:100%;height:540px;border-radius:22px;overflow:hidden;background:radial-gradient(120% 90% at 50% 35%,var(--viewer-a),var(--viewer-b));border:1px solid var(--border);box-shadow:var(--shadow-lg);user-select:none;-webkit-user-select:none}
+.viewer.mid{height:440px}
+.viewer.short{height:380px}
+@media (max-width:720px){.viewer,.viewer.mid{height:min(62vh,440px);min-height:320px}.viewer.short{height:330px}}
+.viewer canvas{display:block;width:100%!important;height:100%!important;touch-action:none;outline:none;cursor:grab}
+.viewer canvas:active{cursor:grabbing}
+.viewer canvas:focus-visible{box-shadow:inset 0 0 0 3px var(--focus)}
+.vlayer{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.vlabel{position:absolute;left:0;top:0;font-weight:800;font-size:13px;padding:1px 6px;border-radius:7px;white-space:nowrap;will-change:transform;transition:opacity .2s}
+.vlabel.atom{background:rgba(255,255,255,.88);color:#18203a;box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.vlabel.central{background:var(--central);color:#fff;font-size:15px;padding:2px 8px}
+.vlabel.angle{background:var(--angle);color:#fff;font-size:12.5px;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.vlabel.angle i{font-style:normal;font-weight:600;opacity:.85;font-size:11px;margin-left:4px}
+.vlabel.tag{background:var(--surface);color:var(--text);border:1px dashed var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.vlabel.res{background:var(--res);color:#fff;font-size:13px}
+.vlabel.orb{color:#fff;font-size:11.5px;padding:1px 7px;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.vlabel.sig{background:#7048e8}
+.vlabel.pi{background:#1c7ed6}
+.vlabel.at{background:#2b8a3e;font-size:13.5px}
+.vhyb{position:absolute;right:12px;bottom:10px;background:#7048e8;color:#fff;font-weight:700;font-size:.9rem;padding:6px 12px;border-radius:12px;box-shadow:var(--shadow);pointer-events:none}
+.vhyb b{font-size:1.1rem}
+.vtools button[data-a="orb"]{width:auto;padding:0 10px;font-size:.85rem}
+.vtools button[aria-pressed="true"]{background:#7048e8;color:#fff;border-color:transparent}
+.vlabel.at.dim{background:var(--surface);color:var(--muted);border:1px dashed var(--muted)}
+.vlabel sub{vertical-align:-0.2em;line-height:1;font-size:.75em}
+.vlabel.at i{font-style:normal;font-weight:600;font-size:10px;margin-left:4px}
+.orb-mini{display:flex;gap:8px;align-items:flex-end;margin:6px 0 2px}
+.orb-mini .orb-g .bx span{width:20px;height:20px;border-radius:5px}
+.vlabel.res0{background:var(--surface);color:var(--text);border:2px solid var(--dip);font-size:13px}
+.vtools{position:absolute;top:10px;right:10px;display:flex;gap:6px;z-index:2}
+.vtools button{width:40px;height:40px;border-radius:12px;border:1px solid var(--border);background:color-mix(in srgb,var(--surface) 85%,transparent);backdrop-filter:blur(6px);cursor:pointer;font-weight:800;font-size:1rem;display:grid;place-items:center}
+.vtools button:hover{background:var(--surface)}
+.vhint{position:absolute;left:12px;bottom:10px;font-size:.78rem;color:var(--muted);background:color-mix(in srgb,var(--surface) 80%,transparent);padding:4px 9px;border-radius:999px;transition:opacity .6s;pointer-events:none}
+.vcap{position:absolute;left:12px;top:10px;right:200px;font-size:.9rem;font-weight:700;pointer-events:none}
+.vcap span{display:inline-block;background:color-mix(in srgb,var(--surface) 85%,transparent);padding:5px 10px;border-radius:10px;box-shadow:var(--shadow)}
+@media (max-width:720px){.vcap{right:10px;top:58px}}
+.viewer.vfull{position:fixed;inset:0;width:100vw;height:100vh!important;height:100dvh!important;z-index:100;border-radius:0;border:0;min-height:0}
+.viewer:fullscreen{width:100vw;height:100vh!important;border-radius:0;border:0}
+body.noscroll{overflow:hidden}
+body.noscroll .topbar,body.noscroll .legend{visibility:hidden} /* el visor ampliado queda por encima de todo */
+.vtools button[data-a="full"]{font-size:1.15rem}
+/* Ajustes según dispositivo */
+.lab-grid>*,.why-grid>*,.method-grid>*,.pred-grid>*{min-width:0}
+@media (max-width:400px){.counters{gap:8px}.counter{padding:8px}.round{width:42px;height:42px;font-size:1.4rem}.counter output{min-width:30px;font-size:1.7rem}.atom-grid{gap:5px}}
+@media (pointer:coarse){.vtools button{width:44px;height:44px}}
+@media (pointer:coarse) and (max-width:520px){.vtools [data-a="in"],.vtools [data-a="out"]{display:none}.vtools{gap:5px;top:8px;right:8px}}
+@media (max-width:720px){.legend .lg.muted{display:none}}
+@media (max-height:500px) and (orientation:landscape){
+  .topbar{position:static}
+  .lab-view,.method-side{position:static}
+  .viewer,.viewer.mid,.viewer.short{height:calc(100vh - 60px);min-height:220px}
+  .legend-in{padding:4px 12px;font-size:.75rem}
+}
+.viewer.vfull .vtools{top:calc(10px + env(safe-area-inset-top));right:calc(10px + env(safe-area-inset-right))}
+.viewer.vfull .vhyb,.viewer.vfull .vhint{bottom:calc(10px + env(safe-area-inset-bottom))}
+.viewer.vfull .vcap{top:calc(10px + env(safe-area-inset-top));left:calc(12px + env(safe-area-inset-left))}
+@media (max-width:720px){.viewer.vfull .vcap{top:calc(60px + env(safe-area-inset-top))}}
+.vfallback{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px;color:var(--muted)}
+.vbar{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.lock{position:absolute;inset:0;display:grid;place-items:center;text-align:center;background:color-mix(in srgb,var(--surface-2) 78%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);z-index:3;font-weight:700;color:var(--muted);padding:20px;transition:opacity .5s}
+.lock .big{font-size:2.4rem;display:block;margin-bottom:6px}
+
+/* Panel de resultados */
+.notation{font-size:2.6rem;font-weight:850;letter-spacing:.01em;line-height:1.1;margin:2px 0 4px}
+.notation .x{color:var(--central)}
+.notation .e{color:var(--lp-ink)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:8px 12px;align-items:baseline;margin-top:12px}
+.kv dt{font-size:.82rem;color:var(--muted);font-weight:700}
+.kv dd{margin:0;font-weight:700}
+.kv dd .sub{display:block;font-weight:500;color:var(--muted);font-size:.85rem}
+.geo-pair{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.geo-box{border-radius:14px;padding:10px 12px;background:var(--surface-2)}
+.geo-box small{display:block;font-size:.72rem;font-weight:750;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.geo-box b{font-size:1.02rem}
+.geo-box.mol{background:var(--primary-soft)}
+.flash{animation:flash .6s ease}
+@keyframes flash{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--primary) 50%,transparent)}100%{box-shadow:0 0 0 12px transparent}}
+
+/* =========================================================
+   ENTIENDE EL PORQUÉ
+   ========================================================= */
+.stepper{display:flex;gap:6px;overflow-x:auto;padding:4px 2px 10px;scrollbar-width:thin}
+.step-pill{display:flex;align-items:center;gap:8px;border:1px solid var(--border);background:var(--surface);border-radius:999px;padding:6px 12px 6px 6px;cursor:pointer;white-space:nowrap;font-weight:650;min-height:44px;font-size:.9rem}
+.step-pill .num{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--surface-3);font-weight:800}
+.step-pill[aria-current="step"]{border-color:var(--primary);background:var(--primary-soft)}
+.step-pill[aria-current="step"] .num{background:var(--primary);color:var(--primary-ink)}
+.step-pill.done .num{background:var(--ok);color:#fff}
+.why-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:16px;align-items:start}
+@media (max-width:900px){.why-grid{grid-template-columns:1fr}.why-grid .why-view{order:-1}}
+.why-text .lead{font-size:1.08rem}
+.bigread{font-size:2.6rem;font-weight:850;color:var(--angle);line-height:1;font-variant-numeric:tabular-nums}
+.quiz{margin-top:14px;background:var(--surface-2);border-radius:16px;padding:14px}
+.quiz h4{margin:0 0 10px;font-size:.98rem}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;min-height:46px;padding:10px 14px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);cursor:pointer;font-weight:600;transition:all .15s}
+.opt:hover{border-color:var(--primary)}
+.opt[aria-pressed="true"]{border-color:var(--primary);background:var(--primary-soft)}
+.opt.correct{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.correct::after{content:" ✓";color:var(--ok);font-weight:900}
+.opt.wrong::after{content:" ✗";color:var(--bad);font-weight:900}
+.opts.inline{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}
+.rep-bars{display:grid;gap:8px;margin:10px 0}
+.rep-bar{display:grid;grid-template-columns:150px 1fr;gap:10px;align-items:center;font-size:.88rem;font-weight:700}
+.rep-bar .b{height:14px;border-radius:999px;background:linear-gradient(90deg,var(--lp),var(--angle))}
+.orb{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0;align-items:flex-end}
+.orb-g{text-align:center;font-size:.8rem;font-weight:700;color:var(--muted)}
+.orb-g .bx{display:flex;gap:3px;margin-bottom:4px}
+.orb-g .bx span{width:30px;height:30px;border:2px solid var(--border);border-radius:7px;background:var(--surface)}
+.orb-g .bx span.on{background:#a78bfa;border-color:#7c5ce0}
+.svgbox{background:var(--surface-2);border-radius:16px;padding:8px;margin:8px 0}
+.svgbox svg{display:block;width:100%;height:auto}
+.lp-breath{animation:breath 2.4s ease-in-out infinite;transform-origin:center;transform-box:fill-box}
+.bp-breath{animation:breath2 2.4s ease-in-out infinite;transform-origin:center;transform-box:fill-box}
+@keyframes breath{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+@keyframes breath2{0%,100%{transform:scale(1)}50%{transform:scale(1.04,.96)}}
+.paused *{animation-play-state:paused!important}
+
+/* =========================================================
+   MÉTODO PASO A PASO
+   ========================================================= */
+.method-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:950px){.method-grid{grid-template-columns:1fr}}
+.method-side{position:sticky;top:84px}
+@media (max-width:950px){.method-side{position:static}}
+.mstep{border:1px solid var(--border);border-radius:16px;padding:14px;margin-bottom:12px;background:var(--surface);transition:opacity .3s}
+.mstep.locked{opacity:.45;pointer-events:none}
+.mstep.done{border-color:color-mix(in srgb,var(--ok) 55%,var(--border))}
+.mstep h3{display:flex;align-items:center;gap:10px}
+.mstep h3 .num{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--primary);color:var(--primary-ink);font-size:.9rem;flex-shrink:0}
+.mstep.done h3 .num{background:var(--ok);color:#fff}
+.inp{min-height:44px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);padding:8px 12px;font:inherit;font-weight:650}
+.inp:focus{border-color:var(--primary);outline:none;box-shadow:0 0 0 3px var(--primary-soft)}
+.inp.num{width:90px;text-align:center}
+select.inp{padding-right:30px}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.mgrid label{display:grid;gap:4px;font-size:.85rem;font-weight:700;color:var(--muted)}
+.mgrid .inp{width:100%}
+.mgrid .ok-mark,.mgrid .bad-mark{font-size:.82rem;font-weight:600}
+.ok-mark{color:var(--ok)}.bad-mark{color:var(--bad)}
+.table-mini{border-collapse:collapse;width:100%;font-size:.92rem;margin:6px 0}
+.table-mini td,.table-mini th{padding:6px 8px;border-bottom:1px solid var(--border);text-align:left}
+.table-mini tfoot td{font-weight:800}
+.seg{display:inline-flex;background:var(--surface-2);border-radius:12px;padding:4px;gap:4px}
+.seg button{border:0;background:transparent;border-radius:9px;padding:8px 14px;font-weight:700;cursor:pointer;min-height:40px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--text);box-shadow:var(--shadow)}
+
+/* =========================================================
+   PREDICE
+   ========================================================= */
+.pred-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:950px){.pred-grid{grid-template-columns:1fr}}
+.stats{display:flex;flex-wrap:wrap;gap:10px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:8px 14px;min-width:96px;box-shadow:var(--shadow)}
+.stat b{display:block;font-size:1.35rem;font-variant-numeric:tabular-nums}
+.stat small{color:var(--muted);font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em}
+.formula-big{font-size:3rem;font-weight:850;letter-spacing:.01em;line-height:1.05}
+.qblock{margin-top:14px}
+.qblock h4{font-size:.92rem;margin:0 0 8px;display:flex;align-items:center;gap:8px}
+.qblock .fb{font-size:.9rem;margin-top:8px}
+.diag-row{display:grid;grid-template-columns:1fr 46px;gap:8px;align-items:center;margin:8px 0;font-size:.88rem;font-weight:650}
+.diag-row .bar{grid-column:1/-1;height:8px;background:var(--surface-3);border-radius:999px;overflow:hidden}
+.diag-row .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--angle),var(--bad));border-radius:999px;transition:width .5s}
+.rubric label{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.rubric input{width:22px;height:22px;margin-top:2px;flex-shrink:0;accent-color:var(--primary)}
+textarea.inp{width:100%;min-height:120px;resize:vertical;font-weight:500}
+.reminder{display:flex;gap:10px;align-items:flex-start}
+
+/* =========================================================
+   TABLA
+   ========================================================= */
+.tbl-wrap{overflow-x:auto;border-radius:16px;border:1px solid var(--border)}
+table.vsepr{width:100%;border-collapse:collapse;min-width:820px;background:var(--surface)}
+table.vsepr th{background:var(--surface-2);text-align:left;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:10px 12px;position:sticky;top:0}
+table.vsepr td{padding:10px 12px;border-top:1px solid var(--border);vertical-align:middle}
+table.vsepr tbody tr{cursor:pointer;transition:background .15s}
+table.vsepr tbody tr:hover,table.vsepr tbody tr:focus-visible{background:var(--primary-soft)}
+table.vsepr tr.fam td{background:var(--surface-2);font-weight:800;font-size:.85rem;cursor:default;color:var(--muted)}
+table.vsepr .nt{font-weight:850;font-size:1.05rem}
+.err-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.err-card{display:flex;flex-direction:column}
+.err-card .vs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+.err-card .vs > div{border-radius:12px;padding:8px 10px;font-size:.88rem}
+.err-card .no{background:var(--bad-soft)}
+.err-card .yes{background:var(--ok-soft)}
+.err-card .no b,.err-card .yes b{display:block;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em}
+.err-card .btn{margin-top:auto}
+
+/* =========================================================
+   LEYENDA (siempre visible)
+   ========================================================= */
+.legend{position:fixed;left:0;right:0;bottom:0;z-index:25;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--border)}
+.legend-in{max-width:1320px;margin:0 auto;padding:8px 16px;display:flex;gap:16px;overflow-x:auto;scrollbar-width:none;font-size:.82rem;font-weight:650;align-items:center}
+.legend-in::-webkit-scrollbar{display:none}
+.lg{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.lg .sw{width:14px;height:14px;border-radius:50%}
+.lg .sw.c{background:var(--central)}
+.lg .sw.l{background:var(--ligand);border:1px solid var(--bond)}
+.lg .sw.p{background:var(--lp);border-radius:50% 50% 50% 50%/65% 65% 35% 35%;opacity:.9}
+.lg .sw.b{width:22px;height:5px;border-radius:3px;background:var(--bond)}
+.lg .sw.a{width:16px;height:9px;border:3px solid var(--angle);border-bottom:0;border-radius:16px 16px 0 0;background:transparent}
+.lg .sw.d{width:20px;height:4px;background:var(--dip);border-radius:2px;position:relative}
+.lg .sw.s{background:#b197fc;border-radius:50% 50% 50% 50%/65% 65% 35% 35%}
+.lg .sw.pi{width:8px;height:16px;border-radius:5px;background:#4dabf7;box-shadow:10px 0 0 #4dabf7;margin-right:10px}
+.toast{position:fixed;left:50%;bottom:70px;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:650;opacity:0;transition:all .3s;z-index:60;max-width:min(92vw,520px);pointer-events:none;box-shadow:var(--shadow-lg)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Estructuras de Lewis (SVG) */
+svg .lw-c{fill:var(--central);font-weight:850;font-size:24px;text-anchor:middle;dominant-baseline:central}
+svg .lw-l{fill:var(--text);font-weight:800;font-size:20px;text-anchor:middle;dominant-baseline:central}
+svg .lw-b{stroke:var(--text);stroke-width:2.6;stroke-linecap:round}
+svg .lw-ld{fill:var(--muted)}
+svg .lw-cp{fill:var(--lp-ink)}
+svg .lw-fc{fill:var(--bad);font-size:15px;font-weight:800;text-anchor:middle;dominant-baseline:central}
+svg .lw-br{fill:none;stroke:var(--text);stroke-width:2.4}
+svg .lw-q{fill:var(--text);font-size:17px;font-weight:800}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="brand">
+      <div class="brand-logo" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3.6" fill="#fff"/><circle cx="12" cy="3.6" r="2" fill="#fff" opacity=".9"/><circle cx="4.7" cy="16.2" r="2" fill="#fff" opacity=".9"/><circle cx="19.3" cy="16.2" r="2" fill="#fff" opacity=".9"/><path d="M12 8.4V5.6M9 13.8l-2.6 1.4M15 13.8l2.6 1.4" stroke="#fff" stroke-width="1.6"/></svg>
+      </div>
+      <div><strong>TRePEV Lab</strong><span>Geometría molecular · 2.º Bachillerato · PAU</span></div>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Secciones de la aplicación">
+      <button class="tab" role="tab" id="t-lab" aria-controls="p-lab" data-tab="lab" aria-selected="true"><span class="n">1</span>Laboratorio</button>
+      <button class="tab" role="tab" id="t-why" aria-controls="p-why" data-tab="why" aria-selected="false" tabindex="-1"><span class="n">2</span>Entiende el porqué</button>
+      <button class="tab" role="tab" id="t-method" aria-controls="p-method" data-tab="method" aria-selected="false" tabindex="-1"><span class="n">3</span>Método paso a paso</button>
+      <button class="tab" role="tab" id="t-predict" aria-controls="p-predict" data-tab="predict" aria-selected="false" tabindex="-1"><span class="n">4</span>Predice antes de mirar</button>
+      <button class="tab" role="tab" id="t-table" aria-controls="p-table" data-tab="table" aria-selected="false" tabindex="-1"><span class="n">5</span>Tabla y chuleta</button>
+    </nav>
+    <button id="themeBtn" class="icon-btn" type="button" aria-label="Cambiar tema claro/oscuro" title="Cambiar tema">
+      <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ======================= 1. LABORATORIO ======================= -->
+<section class="tabpanel" id="p-lab" role="tabpanel" aria-labelledby="t-lab">
+  <div class="lab-grid">
+    <div class="card lab-ctrl">
+      <h2>Construye la molécula</h2>
+      <div class="field">
+        <span class="label" id="lblCentral">Átomo central</span>
+        <div id="centralPicker" class="atom-grid" role="radiogroup" aria-labelledby="lblCentral"></div>
+      </div>
+      <div class="field">
+        <span class="label">Pares alrededor del átomo central</span>
+        <div class="counters">
+          <div class="counter">
+            <span class="ct">Enlazantes <b>X</b></span>
+            <div class="cbox">
+              <button class="round x" id="xMinus" type="button" aria-label="Quitar un par enlazante">−</button>
+              <output id="xVal" aria-live="polite">3</output>
+              <button class="round x" id="xPlus" type="button" aria-label="Añadir un par enlazante">+</button>
+            </div>
+          </div>
+          <div class="counter">
+            <span class="ct">Libres <b>E</b></span>
+            <div class="cbox">
+              <button class="round e" id="eMinus" type="button" aria-label="Quitar un par libre">−</button>
+              <output id="eVal" aria-live="polite">1</output>
+              <button class="round e" id="ePlus" type="button" aria-label="Añadir un par libre">+</button>
+            </div>
+          </div>
+        </div>
+        <div id="labMsg" role="status" aria-live="polite"></div>
+      </div>
+      <div class="field">
+        <span class="label" id="realLbl">Especies reales con este átomo</span>
+        <div id="realList" class="chips"></div>
+      </div>
+      <div class="field">
+        <span class="label">Moléculas famosas (1 clic)</span>
+        <div id="famous" class="chips"></div>
+      </div>
+      <details open>
+        <summary>Qué mostrar en 3D</summary>
+        <div class="switches" id="labSwitches"></div>
+      </details>
+    </div>
+
+    <div class="lab-view">
+      <div id="labViewer" class="viewer"></div>
+      <div class="vbar">
+        <button class="btn soft" id="btnRemoveLP" type="button">Quitar pares libres</button>
+        <button class="btn" id="btnBase" type="button" aria-pressed="false">Mostrar la figura base</button>
+        <button class="btn" id="btnAtomic" type="button" aria-pressed="false">Ver orbitales s, p, d</button>
+        <button class="btn" id="btnOrb" type="button" aria-pressed="false">Ver todos los orbitales</button>
+      </div>
+    </div>
+
+    <div class="card lab-res" id="labResults" aria-live="polite"></div>
+  </div>
+</section>
+
+<!-- ======================= 2. ENTIENDE EL PORQUÉ ======================= -->
+<section class="tabpanel hidden" id="p-why" role="tabpanel" aria-labelledby="t-why">
+  <div class="section-head">
+    <div><h1>Entiende el porqué</h1><p>6 ideas cortas. Mira, toca, y responde una mini pregunta para avanzar.</p></div>
+  </div>
+  <nav class="stepper" id="whySteps" aria-label="Pasos de la teoría"></nav>
+  <div class="why-grid">
+    <div class="card why-text" id="whyText"></div>
+    <div class="why-view"><div id="whyViewer" class="viewer mid"></div><div class="vbar" id="whyBar"></div></div>
+  </div>
+</section>
+
+<!-- ======================= 3. MÉTODO ======================= -->
+<section class="tabpanel hidden" id="p-method" role="tabpanel" aria-labelledby="t-method">
+  <div class="section-head">
+    <div><h1>Método paso a paso</h1><p>El procedimiento que se espera en la PAU. Intenta cada paso antes de ver la solución.</p></div>
+    <div class="seg" role="group" aria-label="Modo">
+      <button type="button" id="mModeTry" aria-pressed="true">Inténtalo tú</button>
+      <button type="button" id="mModeShow" aria-pressed="false">Mostrar todo</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="row">
+      <label for="mFormula" class="label" style="margin:0 6px 0 0">Fórmula</label>
+      <input id="mFormula" class="inp" style="flex:1;min-width:160px;max-width:300px" placeholder="Ej.: NH3, SO2, CO3 2-, NH4+" autocomplete="off" spellcheck="false">
+      <button class="btn primary" id="mGo" type="button">Empezar</button>
+    </div>
+    <div id="mFormulaMsg" role="status" aria-live="polite"></div>
+    <details>
+      <summary><span>O elige de la lista (<span id="mCount"></span> moléculas e iones)</span></summary>
+      <div class="chips" id="mChips" style="margin-top:8px"></div>
+    </details>
+  </div>
+  <div class="method-grid" style="margin-top:14px">
+    <div id="mSteps"></div>
+    <div class="method-side">
+      <div class="card">
+        <span class="label">Estructura de Lewis</span>
+        <div id="mLewis" class="svgbox" aria-live="polite"><p class="muted small" style="padding:20px;text-align:center">Aparecerá en el paso 3.</p></div>
+      </div>
+      <div style="margin-top:14px;position:relative">
+        <div id="methodViewer" class="viewer short"></div>
+        <div class="lock" id="mLock"><div><span class="big" aria-hidden="true">🔒</span>El modelo 3D se desbloquea en el paso 5</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= 4. PREDICE ======================= -->
+<section class="tabpanel hidden" id="p-predict" role="tabpanel" aria-labelledby="t-predict">
+  <div class="section-head">
+    <div><h1>Predice antes de mirar</h1><p>Primero piensas, luego lo ves en 3D. Así se aprende de verdad.</p></div>
+    <div class="seg" role="group" aria-label="Modo de práctica">
+      <button type="button" id="pModeSeq" aria-pressed="true">15 casos</button>
+      <button type="button" id="pModeRand" aria-pressed="false">Al azar</button>
+      <button type="button" id="pModePau" aria-pressed="false">Tipo PAU</button>
+    </div>
+  </div>
+  <div class="stats" id="pStats" style="margin-bottom:14px"></div>
+  <div class="pred-grid">
+    <div>
+      <div id="pReminder"></div>
+      <div class="card" id="pCard"></div>
+    </div>
+    <div>
+      <div style="position:relative">
+        <div id="predictViewer" class="viewer mid"></div>
+        <div class="lock" id="pLock"><div><span class="big" aria-hidden="true">👀</span>Predice primero.<br>El 3D se desvela al comprobar.</div></div>
+      </div>
+      <div class="card" style="margin-top:14px" id="pDiag"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= 5. TABLA ======================= -->
+<section class="tabpanel hidden" id="p-table" role="tabpanel" aria-labelledby="t-table">
+  <div class="section-head">
+    <div><h1>Tabla y chuleta</h1><p>Toca una fila para abrir esa geometría en el Laboratorio 3D.</p></div>
+    <div class="row"><span class="badge ess">★ Imprescindible</span><span class="badge amp">+ Ampliación</span></div>
+  </div>
+  <div class="tbl-wrap"><table class="vsepr" id="vseprTable">
+    <caption class="sr">Tabla TRePEV: notación, dominios, geometrías, ángulos e hibridación</caption>
+    <thead><tr><th scope="col">Notación</th><th scope="col">Dominios</th><th scope="col">Geom. electrónica</th><th scope="col">Geom. molecular</th><th scope="col">Ángulo</th><th scope="col">Hibridación</th><th scope="col">Ejemplos</th><th scope="col">Nivel</th></tr></thead>
+    <tbody></tbody>
+  </table></div>
+  <div class="msg info" style="margin-top:14px"><b class="t">Cómo se lee</b>Los <b>5 casos base</b> (AX₂, AX₃, AX₄, AX₅, AX₆) y las variantes con pares libres de las familias <b>trigonal plana y tetraédrica</b> son imprescindibles. Lo que lleva hibridación sp³d o sp³d² (octeto expandido) es ampliación: la forma de AX₅ y AX₆ sí conviene saberla.</div>
+  <h2 style="margin-top:24px">Errores típicos en el examen</h2>
+  <div class="err-grid" id="errGrid"></div>
+</section>
+
+</main>
+
+<footer class="legend" aria-label="Leyenda de colores del visor 3D">
+  <div class="legend-in">
+    <span class="lg"><span class="sw c"></span>Átomo central</span>
+    <span class="lg"><span class="sw l"></span>Ligando (átomo unido)</span>
+    <span class="lg"><span class="sw p"></span>Par libre</span>
+    <span class="lg"><span class="sw b"></span>Enlace</span>
+    <span class="lg"><span class="sw a"></span>Ángulo de enlace</span>
+    <span class="lg"><span class="sw d"></span>Momento dipolar</span>
+    <span class="lg"><span class="sw s"></span>σ: solapamiento frontal</span>
+    <span class="lg"><span class="sw pi"></span>π: solapamiento lateral</span>
+    <span class="lg muted">Arrastra para girar · rueda o pellizco para zoom</span>
+  </div>
+</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+'use strict';
+/* ============================================================================
+   1. CONFIGURACIÓN QUÍMICA  (datos separados de la lógica)
+   ----------------------------------------------------------------------------
+   Convenio 3D: +Y hacia arriba, +X a la derecha, +Z hacia la persona que mira.
+   Cada geometría guarda las direcciones IDEALES (figura base perfecta) y las
+   REALES aproximadas (los pares libres comprimen los ángulos).
+   El orden de las direcciones es: primero los X (enlazantes), luego los E (libres).
+   ============================================================================ */
+const DEG = Math.PI / 180;
+/** Vector unitario: ángulo polar desde +Y y azimut desde +X hacia +Z (grados) */
+function sph(polar, az) { const p = polar * DEG, a = az * DEG; return [Math.sin(p) * Math.cos(a), Math.cos(p), Math.sin(p) * Math.sin(a)]; }
+/** Vector en el plano de la pantalla (XY), ángulo desde +X */
+function xy(a) { return [Math.cos(a * DEG), Math.sin(a * DEG), 0]; }
+/** Dos ligandos en "V" hacia abajo, en el plano XY, separados un ángulo theta */
+function vee(theta) { const h = theta / 2 * DEG; return [[Math.sin(h), -Math.cos(h), 0], [-Math.sin(h), -Math.cos(h), 0]]; }
+/** Tres ligandos en pirámide hacia abajo con ángulo de enlace theta entre ellos */
+function pyramid(theta, azs) { const c = Math.sqrt((Math.cos(theta * DEG) + 0.5) / 1.5); const phi = Math.acos(c) / DEG; return azs.map(a => sph(180 - phi, a)); }
+/** Dos pares libres hacia arriba en el plano YZ, separados un ángulo beta */
+function lpPair(beta) { const h = beta / 2 * DEG; return [[0, Math.cos(h), Math.sin(h)], [0, Math.cos(h), -Math.sin(h)]]; }
+const TET = 109.47;
+const UP = [0, 1, 0], DOWN = [0, -1, 0];
+
+const ELEC_NAME = { 1: 'Sin geometría (1 dominio)', 2: 'Lineal', 3: 'Trigonal plana', 4: 'Tetraédrica', 5: 'Bipirámide trigonal', 6: 'Octaédrica' };
+const HYB = { 1: '—', 2: 'sp', 3: 'sp²', 4: 'sp³', 5: 'sp³d', 6: 'sp³d²' };
+const IDEAL_ANGLE_BY_D = { 2: 'a180', 3: 'a120', 4: 'a1095', 5: 'a90_120', 6: 'a90' };
+
+/** Categorías de ángulo usadas en las preguntas de opción múltiple */
+const ANGLE_CATS = {
+  a180: '180°',
+  a120: '120°',
+  a_lt120: 'Algo menor de 120°',
+  a1095: '109,5°',
+  a_lt1095: 'Menor de 109,5°',
+  a90_120: '90° y 120°',
+  a90: '90°',
+  a_lt90: 'Algo menor de 90°',
+  seesaw: 'Algo menores de 180° y de 120°',
+  none: 'No hay ángulo (1 enlace)'
+};
+
+/**
+ * GEOMETRÍAS TRePEV. Clave "X,E".
+ * level: 'ess' imprescindible | 'amp' ampliación | 'x' fuera de temario
+ */
+const GEOMETRIES = {
+  '1,0': { mol: 'Lineal (diatómica)', angleIdeal: '—', angleReal: '— (solo hay un enlace)', angleCat: 'none', idealCat: 'none', symmetric: null,
+    examples: 'H₂, HCl (la molécula es lineal sin más)', level: 'x',
+    ideal: [[1, 0, 0]], arcs: [] },
+  '1,1': { mol: 'Lineal (diatómica)', angleIdeal: '—', angleReal: '— (un solo enlace)', angleCat: 'none', idealCat: 'none', symmetric: false,
+    examples: 'CO visto desde el C', level: 'x',
+    ideal: [[1, 0, 0], [-1, 0, 0]], arcs: [] },
+  '1,2': { mol: 'Lineal (diatómica)', angleIdeal: '—', angleReal: '— (un solo enlace)', angleCat: 'none', idealCat: 'none', symmetric: false,
+    examples: 'Poco habitual como átomo central', level: 'x',
+    ideal: [xy(0), xy(120), xy(240)], arcs: [] },
+  '1,3': { mol: 'Lineal (diatómica)', angleIdeal: '—', angleReal: '— (un solo enlace)', angleCat: 'none', idealCat: 'none', symmetric: false,
+    examples: 'HF, HCl vistos desde el halógeno', level: 'x',
+    ideal: [UP, ...pyramid(TET, [90, 210, 330])], arcs: [] },
+
+  '2,0': { mol: 'Lineal', angleIdeal: '180°', angleReal: '180°', tableAngle: '180°', angleCat: 'a180', idealCat: 'a180', symmetric: true,
+    examples: 'CO₂, BeCl₂, HCN', level: 'ess', exampleId: 'CO2',
+    ideal: [[1, 0, 0], [-1, 0, 0]], arcs: [{ a: 0, b: 1, real: '180°' }] },
+  '2,1': { mol: 'Angular', angleIdeal: '120°', angleReal: '≈119° en SO₂ (menor de 120°)', tableAngle: '<120°', angleCat: 'a_lt120', idealCat: 'a120', symmetric: false,
+    examples: 'SO₂, O₃, NO₂⁻', level: 'ess', exampleId: 'SO2',
+    ideal: [...vee(120), UP], real: [...vee(119), UP], arcs: [{ a: 0, b: 1, real: '≈119°', ideal: '120°' }] },
+  '2,2': { mol: 'Angular', angleIdeal: '109,5°', angleReal: '≈104,5° en H₂O', tableAngle: '≈104,5°', angleCat: 'a_lt1095', idealCat: 'a1095', symmetric: false,
+    examples: 'H₂O, H₂S, OF₂', level: 'ess', exampleId: 'H2O',
+    ideal: [...vee(TET), ...lpPair(TET)], real: [...vee(104.5), ...lpPair(115)], arcs: [{ a: 0, b: 1, real: '≈104,5°', ideal: '109,5°' }] },
+  '2,3': { mol: 'Lineal', angleIdeal: '180°', angleReal: '180°', tableAngle: '180°', angleCat: 'a180', idealCat: 'a180', symmetric: true,
+    examples: 'XeF₂, I₃⁻', level: 'amp', exampleId: 'XeF2',
+    ideal: [UP, DOWN, sph(90, 0), sph(90, 120), sph(90, 240)], arcs: [{ a: 0, b: 1, real: '180°' }] },
+
+  '3,0': { mol: 'Trigonal plana', angleIdeal: '120°', angleReal: '120°', tableAngle: '120°', angleCat: 'a120', idealCat: 'a120', symmetric: true,
+    examples: 'BF₃, SO₃, CO₃²⁻, NO₃⁻', level: 'ess', exampleId: 'BF3',
+    ideal: [xy(90), xy(210), xy(330)], arcs: [{ a: 1, b: 2, real: '120°' }] },
+  '3,1': { mol: 'Pirámide trigonal', angleIdeal: '109,5°', angleReal: '≈107° en NH₃', tableAngle: '≈107°', angleCat: 'a_lt1095', idealCat: 'a1095', symmetric: false,
+    examples: 'NH₃, PCl₃, H₃O⁺', level: 'ess', exampleId: 'NH3',
+    ideal: [...pyramid(TET, [90, 210, 330]), UP], real: [...pyramid(107, [90, 210, 330]), UP], arcs: [{ a: 0, b: 1, real: '≈107°', ideal: '109,5°' }] },
+  '3,2': { mol: 'Forma de T', angleIdeal: '90°', angleReal: '≈87,5° en ClF₃ (menor de 90°)', tableAngle: '≈90° (algo menos)', angleCat: 'a_lt90', idealCat: 'a90', symmetric: false,
+    examples: 'ClF₃, BrF₃', level: 'amp', exampleId: 'ClF3',
+    ideal: [UP, DOWN, [1, 0, 0], sph(90, 120), sph(90, 240)],
+    real: [[Math.cos(87.5 * DEG), Math.sin(87.5 * DEG), 0], [Math.cos(87.5 * DEG), -Math.sin(87.5 * DEG), 0], [1, 0, 0], sph(90, 120), sph(90, 240)],
+    arcs: [{ a: 0, b: 2, real: '≈87,5°', ideal: '90°' }] },
+
+  '4,0': { mol: 'Tetraédrica', angleIdeal: '109,5°', angleReal: '109,5°', tableAngle: '109,5°', angleCat: 'a1095', idealCat: 'a1095', symmetric: true,
+    examples: 'CH₄, CCl₄, NH₄⁺, SO₄²⁻', level: 'ess', exampleId: 'CH4',
+    ideal: [UP, ...pyramid(TET, [90, 210, 330])], arcs: [{ a: 0, b: 1, real: '109,5°' }] },
+  '4,1': { mol: 'Balancín', angleIdeal: '180° y 120°', angleReal: 'F–S–F ≈173° y ≈102° (SF₄)', tableAngle: '<180° y <120°', angleCat: 'seesaw', idealCat: 'a90_120', symmetric: false,
+    examples: 'SF₄', level: 'amp', exampleId: 'SF4',
+    ideal: [UP, DOWN, sph(90, 120), sph(90, 240), sph(90, 0)],
+    real: [[-Math.sin(3.5 * DEG), Math.cos(3.5 * DEG), 0], [-Math.sin(3.5 * DEG), -Math.cos(3.5 * DEG), 0], sph(90, 129), sph(90, 231), sph(90, 0)],
+    arcs: [{ a: 0, b: 1, real: '≈173°', ideal: '180°' }, { a: 2, b: 3, real: '≈102°', ideal: '120°' }] },
+  '4,2': { mol: 'Cuadrada plana', angleIdeal: '90°', angleReal: '90°', tableAngle: '90°', angleCat: 'a90', idealCat: 'a90', symmetric: true,
+    examples: 'XeF₄, ICl₄⁻', level: 'amp', exampleId: 'XeF4',
+    ideal: [[1, 0, 0], [0, 0, 1], [-1, 0, 0], [0, 0, -1], UP, DOWN], arcs: [{ a: 0, b: 1, real: '90°' }] },
+
+  '5,0': { mol: 'Bipirámide trigonal', angleIdeal: '90° y 120°', angleReal: '90° y 120°', tableAngle: '90° / 120°', angleCat: 'a90_120', idealCat: 'a90_120', symmetric: true,
+    examples: 'PCl₅, PF₅', level: 'ess', hybAmp: true, exampleId: 'PCl5',
+    ideal: [UP, DOWN, sph(90, 0), sph(90, 120), sph(90, 240)], arcs: [{ a: 0, b: 2, real: '90°' }, { a: 2, b: 3, real: '120°' }] },
+  '5,1': { mol: 'Pirámide cuadrada', angleIdeal: '90°', angleReal: '≈85° en BrF₅ (menor de 90°)', tableAngle: '<90°', angleCat: 'a_lt90', idealCat: 'a90', symmetric: false,
+    examples: 'BrF₅, IF₅', level: 'amp', exampleId: 'BrF5',
+    ideal: [UP, sph(90, 45), sph(90, 135), sph(90, 225), sph(90, 315), DOWN],
+    real: [UP, sph(84.8, 45), sph(84.8, 135), sph(84.8, 225), sph(84.8, 315), DOWN],
+    arcs: [{ a: 0, b: 1, real: '≈85°', ideal: '90°' }] },
+
+  '6,0': { mol: 'Octaédrica', angleIdeal: '90°', angleReal: '90°', tableAngle: '90°', angleCat: 'a90', idealCat: 'a90', symmetric: true,
+    examples: 'SF₆', level: 'ess', hybAmp: true, exampleId: 'SF6',
+    ideal: [[1, 0, 0], [-1, 0, 0], UP, DOWN, [0, 0, 1], [0, 0, -1]], arcs: [{ a: 0, b: 2, real: '90°' }] }
+};
+/* Campos derivados (geometría electrónica, hibridación, dominios) */
+for (const k in GEOMETRIES) {
+  const [X, E] = k.split(',').map(Number), g = GEOMETRIES[k];
+  g.X = X; g.E = E; g.D = X + E; g.key = k;
+  g.elec = ELEC_NAME[g.D]; g.hyb = HYB[g.D];
+  if (!g.real) g.real = g.ideal;
+}
+/** Orden de la tabla de la chuleta (agrupado por familias) */
+const TABLE_ORDER = [
+  { fam: '2 dominios · familia lineal', rows: ['2,0'] },
+  { fam: '3 dominios · familia trigonal plana', rows: ['3,0', '2,1'] },
+  { fam: '4 dominios · familia tetraédrica', rows: ['4,0', '3,1', '2,2'] },
+  { fam: '5 dominios · familia bipirámide trigonal', rows: ['5,0', '4,1', '3,2', '2,3'] },
+  { fam: '6 dominios · familia octaédrica', rows: ['6,0', '5,1', '4,2'] }
+];
+
+/** Elementos: e⁻ de valencia, electronegatividad (Pauling), radio covalente (Å), periodo */
+const ELEMENTS = {
+  H: { name: 'hidrógeno', val: 1, en: 2.20, r: 0.32, period: 1 },
+  Be: { name: 'berilio', val: 2, en: 1.57, r: 0.90, period: 2 },
+  B: { name: 'boro', val: 3, en: 2.04, r: 0.84, period: 2 },
+  C: { name: 'carbono', val: 4, en: 2.55, r: 0.76, period: 2 },
+  N: { name: 'nitrógeno', val: 5, en: 3.04, r: 0.71, period: 2 },
+  O: { name: 'oxígeno', val: 6, en: 3.44, r: 0.66, period: 2 },
+  F: { name: 'flúor', val: 7, en: 3.98, r: 0.57, period: 2 },
+  Si: { name: 'silicio', val: 4, en: 1.90, r: 1.11, period: 3 },
+  P: { name: 'fósforo', val: 5, en: 2.19, r: 1.07, period: 3 },
+  S: { name: 'azufre', val: 6, en: 2.58, r: 1.05, period: 3 },
+  Cl: { name: 'cloro', val: 7, en: 3.16, r: 1.02, period: 3 },
+  Br: { name: 'bromo', val: 7, en: 2.96, r: 1.20, period: 4 },
+  I: { name: 'yodo', val: 7, en: 2.66, r: 1.39, period: 5 },
+  Xe: { name: 'xenón', val: 8, en: 2.60, r: 1.40, period: 5 }
+};
+/** Átomos centrales del Laboratorio; todos en tonos de azul (código de color constante) */
+const CENTRAL_LIST = ['C', 'N', 'O', 'P', 'S', 'Cl', 'Br', 'Xe', 'Si', 'B', 'Be'];
+const CENTRAL_COLORS = { C: '#2742c4', N: '#1f6ff2', O: '#3a5cff', P: '#4f46e5', S: '#1592c8', Cl: '#0e9fae', Br: '#3554b8', Xe: '#6d5cf6', Si: '#5a7bb8', B: '#5b8def', Be: '#78a0ff', I: '#5a49c9', H: '#78a0ff' };
+/** Ligandos en grises/blancos */
+const LIGAND_COLORS = { H: '#f5f7fb', F: '#dfe4ec', Cl: '#c4ccd8', Br: '#aab3c1', I: '#9aa3b2', O: '#d2d8e2', N: '#c9d0db', C: '#b2bac7', X: '#cfd5df' };
+
+/* ----------------------------------------------------------------------------
+   MOLÉCULAS E IONES (Lewis + TRePEV). lig: s=símbolo, o=orden de enlace,
+   lp=pares libres del ligando, fc=carga formal. cfc=carga formal del central.
+   Orden de lig = orden de los X en la geometría 3D.
+   ---------------------------------------------------------------------------- */
+const SPECIES = [
+  { id: 'CH4', f: 'CH₄', name: 'metano', central: 'C', atoms: { C: 1, H: 4 }, charge: 0, X: 4, E: 0, lig: [{ s: 'H' }, { s: 'H' }, { s: 'H' }, { s: 'H' }], polar: false, polarWhy: 'Tetraédrica y con 4 ligandos iguales: los dipolos C–H (pequeños) se anulan.' },
+  { id: 'NH3', f: 'NH₃', name: 'amoniaco', central: 'N', atoms: { N: 1, H: 3 }, charge: 0, X: 3, E: 1, lig: [{ s: 'H' }, { s: 'H' }, { s: 'H' }], polar: true, polarWhy: 'Pirámide trigonal (asimétrica por el par libre): los dipolos N–H no se anulan.' },
+  { id: 'H2O', f: 'H₂O', name: 'agua', central: 'O', atoms: { H: 2, O: 1 }, charge: 0, X: 2, E: 2, lig: [{ s: 'H' }, { s: 'H' }], polar: true, polarWhy: 'Angular: los dos dipolos O–H no apuntan en sentidos opuestos y no se anulan.' },
+  { id: 'CO2', f: 'CO₂', name: 'dióxido de carbono', central: 'C', atoms: { C: 1, O: 2 }, charge: 0, X: 2, E: 0, lig: [{ s: 'O', o: 2, lp: 2 }, { s: 'O', o: 2, lp: 2 }], polar: false, polarWhy: 'Lineal: los dos dipolos C=O son iguales y opuestos, se anulan.' },
+  { id: 'BF3', f: 'BF₃', name: 'trifluoruro de boro', central: 'B', atoms: { B: 1, F: 3 }, charge: 0, X: 3, E: 0, lig: [{ s: 'F', lp: 3 }, { s: 'F', lp: 3 }, { s: 'F', lp: 3 }], polar: false, polarWhy: 'Trigonal plana simétrica: los tres dipolos B–F a 120° se anulan.', note: 'El B se queda con solo 6 e⁻ (octeto incompleto): excepción típica.' },
+  { id: 'BeCl2', f: 'BeCl₂', name: 'cloruro de berilio', central: 'Be', atoms: { Be: 1, Cl: 2 }, charge: 0, X: 2, E: 0, lig: [{ s: 'Cl', lp: 3 }, { s: 'Cl', lp: 3 }], polar: false, polarWhy: 'Lineal: los dipolos Be–Cl son opuestos y se anulan.', note: 'El Be se queda con 4 e⁻ (octeto incompleto). Se estudia como molécula aislada (gas).' },
+  { id: 'SO2', f: 'SO₂', name: 'dióxido de azufre', central: 'S', atoms: { S: 1, O: 2 }, charge: 0, X: 2, E: 1, lig: [{ s: 'O', o: 2, lp: 2 }, { s: 'O', o: 2, lp: 2 }], polar: true, polarWhy: 'Angular por el par libre del S: los dipolos S–O no se anulan.', note: 'También se dibuja como híbrido de resonancia O=S–O ↔ O–S=O. En cualquier caso el S tiene 2 dominios enlazantes y 1 par libre.' },
+  { id: 'SO3', f: 'SO₃', name: 'trióxido de azufre', central: 'S', atoms: { S: 1, O: 3 }, charge: 0, X: 3, E: 0, lig: [{ s: 'O', o: 2, lp: 2 }, { s: 'O', o: 2, lp: 2 }, { s: 'O', o: 2, lp: 2 }], polar: false, polarWhy: 'Trigonal plana simétrica: los dipolos se anulan.', note: 'Se puede dibujar con octeto expandido (3 S=O) o con un S=O y dos S–O con cargas formales: siempre 3 dominios y 0 pares libres en el S.' },
+  { id: 'HCN', f: 'HCN', name: 'cianuro de hidrógeno', central: 'C', atoms: { H: 1, C: 1, N: 1 }, charge: 0, X: 2, E: 0, lig: [{ s: 'H' }, { s: 'N', o: 3, lp: 1 }], polar: true, polarWhy: 'Es lineal, pero los dos ligandos son distintos (H y N): los dipolos no se compensan.' },
+  { id: 'CH2O', f: 'CH₂O', name: 'metanal (formaldehído)', central: 'C', atoms: { C: 1, H: 2, O: 1 }, charge: 0, X: 3, E: 0, lig: [{ s: 'O', o: 2, lp: 2 }, { s: 'H' }, { s: 'H' }], polar: true, polarWhy: 'Trigonal plana, pero con ligandos distintos (O y H): el dipolo C=O no se compensa.', angle: '≈120° (H–C–H ≈116°, O–C–H ≈122°)', arcText: '≈116°', alias: ['H2CO', 'HCHO'] },
+  { id: 'CCl4', f: 'CCl₄', name: 'tetracloruro de carbono', central: 'C', atoms: { C: 1, Cl: 4 }, charge: 0, X: 4, E: 0, lig: [{ s: 'Cl', lp: 3 }, { s: 'Cl', lp: 3 }, { s: 'Cl', lp: 3 }, { s: 'Cl', lp: 3 }], polar: false, polarWhy: 'Tetraédrica con 4 ligandos iguales: los dipolos C–Cl se anulan.' },
+  { id: 'CHCl3', f: 'CHCl₃', name: 'cloroformo', central: 'C', atoms: { C: 1, H: 1, Cl: 3 }, charge: 0, X: 4, E: 0, lig: [{ s: 'H' }, { s: 'Cl', lp: 3 }, { s: 'Cl', lp: 3 }, { s: 'Cl', lp: 3 }], polar: true, polarWhy: 'Tetraédrica, pero un ligando es distinto (H): los dipolos no se anulan.', arcText: '≈109,5°' },
+  { id: 'PCl3', f: 'PCl₃', name: 'tricloruro de fósforo', central: 'P', atoms: { P: 1, Cl: 3 }, charge: 0, X: 3, E: 1, lig: [{ s: 'Cl', lp: 3 }, { s: 'Cl', lp: 3 }, { s: 'Cl', lp: 3 }], polar: true, polarWhy: 'Pirámide trigonal: los dipolos P–Cl no se anulan.', angle: '≈100° (menor de 109,5°)', arcText: '≈100°' },
+  { id: 'NF3', f: 'NF₃', name: 'trifluoruro de nitrógeno', central: 'N', atoms: { N: 1, F: 3 }, charge: 0, X: 3, E: 1, lig: [{ s: 'F', lp: 3 }, { s: 'F', lp: 3 }, { s: 'F', lp: 3 }], polar: true, polarWhy: 'Pirámide trigonal: los dipolos N–F no se anulan.', angle: '≈102° (menor de 109,5°)', arcText: '≈102°' },
+  { id: 'H2S', f: 'H₂S', name: 'sulfuro de hidrógeno', central: 'S', atoms: { H: 2, S: 1 }, charge: 0, X: 2, E: 2, lig: [{ s: 'H' }, { s: 'H' }], polar: true, polarWhy: 'Angular: los dipolos S–H no se anulan (aunque son pequeños).', angle: '≈92° (menor de 109,5°)', arcText: '≈92°', note: 'En H₂S el ángulo real (≈92°) es mucho menor que en H₂O. En la PAU basta con razonar que es menor de 109,5°.' },
+  { id: 'OF2', f: 'OF₂', name: 'difluoruro de oxígeno', central: 'O', atoms: { O: 1, F: 2 }, charge: 0, X: 2, E: 2, lig: [{ s: 'F', lp: 3 }, { s: 'F', lp: 3 }], polar: true, polarWhy: 'Angular: los dipolos O–F no se anulan.', angle: '≈103° (menor de 109,5°)', arcText: '≈103°' },
+  { id: 'PCl5', f: 'PCl₅', name: 'pentacloruro de fósforo', central: 'P', atoms: { P: 1, Cl: 5 }, charge: 0, X: 5, E: 0, lig: [{ s: 'Cl', lp: 3 }, { s: 'Cl', lp: 3 }, { s: 'Cl', lp: 3 }, { s: 'Cl', lp: 3 }, { s: 'Cl', lp: 3 }], polar: false, polarWhy: 'Bipirámide trigonal con ligandos iguales: los dipolos se anulan.', note: 'Octeto expandido: el P se rodea de 10 e⁻ (posible por ser del 3.er periodo).' },
+  { id: 'SF4', f: 'SF₄', name: 'tetrafluoruro de azufre', central: 'S', atoms: { S: 1, F: 4 }, charge: 0, X: 4, E: 1, lig: [{ s: 'F', lp: 3 }, { s: 'F', lp: 3 }, { s: 'F', lp: 3 }, { s: 'F', lp: 3 }], polar: true, polarWhy: 'Balancín (asimétrica por el par libre): los dipolos no se anulan.' },
+  { id: 'SF6', f: 'SF₆', name: 'hexafluoruro de azufre', central: 'S', atoms: { S: 1, F: 6 }, charge: 0, X: 6, E: 0, lig: [{ s: 'F', lp: 3 }, { s: 'F', lp: 3 }, { s: 'F', lp: 3 }, { s: 'F', lp: 3 }, { s: 'F', lp: 3 }, { s: 'F', lp: 3 }], polar: false, polarWhy: 'Octaédrica con 6 ligandos iguales: los dipolos se anulan de dos en dos.' },
+  { id: 'ClF3', f: 'ClF₃', name: 'trifluoruro de cloro', central: 'Cl', atoms: { Cl: 1, F: 3 }, charge: 0, X: 3, E: 2, lig: [{ s: 'F', lp: 3 }, { s: 'F', lp: 3 }, { s: 'F', lp: 3 }], polar: true, polarWhy: 'Forma de T: los dipolos no se anulan.' },
+  { id: 'XeF2', f: 'XeF₂', name: 'difluoruro de xenón', central: 'Xe', atoms: { Xe: 1, F: 2 }, charge: 0, X: 2, E: 3, lig: [{ s: 'F', lp: 3 }, { s: 'F', lp: 3 }], polar: false, polarWhy: 'Lineal (los 3 pares libres están en el ecuador, repartidos simétricamente): dipolos opuestos que se anulan.' },
+  { id: 'XeF4', f: 'XeF₄', name: 'tetrafluoruro de xenón', central: 'Xe', atoms: { Xe: 1, F: 4 }, charge: 0, X: 4, E: 2, lig: [{ s: 'F', lp: 3 }, { s: 'F', lp: 3 }, { s: 'F', lp: 3 }, { s: 'F', lp: 3 }], polar: false, polarWhy: 'Cuadrada plana (pares libres opuestos, arriba y abajo): los dipolos se anulan.' },
+  { id: 'BrF5', f: 'BrF₅', name: 'pentafluoruro de bromo', central: 'Br', atoms: { Br: 1, F: 5 }, charge: 0, X: 5, E: 1, lig: [{ s: 'F', lp: 3 }, { s: 'F', lp: 3 }, { s: 'F', lp: 3 }, { s: 'F', lp: 3 }, { s: 'F', lp: 3 }], polar: true, polarWhy: 'Pirámide cuadrada: el dipolo del F apical no se compensa.' },
+  { id: 'NH4', f: 'NH₄⁺', name: 'ion amonio', central: 'N', atoms: { N: 1, H: 4 }, charge: 1, X: 4, E: 0, cfc: '+', lig: [{ s: 'H' }, { s: 'H' }, { s: 'H' }, { s: 'H' }], polar: null, polarWhy: 'Es un ion: no se habla de molécula polar/apolar. Su distribución es simétrica (tetraédrica).' },
+  { id: 'H3O', f: 'H₃O⁺', name: 'ion oxonio (hidronio)', central: 'O', atoms: { H: 3, O: 1 }, charge: 1, X: 3, E: 1, cfc: '+', lig: [{ s: 'H' }, { s: 'H' }, { s: 'H' }], polar: null, polarWhy: 'Es un ion: no se pregunta la polaridad. Su forma es piramidal, como el NH₃.', angle: 'Menor de 109,5°', arcText: '<109,5°' },
+  { id: 'CO3', f: 'CO₃²⁻', name: 'ion carbonato', central: 'C', atoms: { C: 1, O: 3 }, charge: -2, X: 3, E: 0, lig: [{ s: 'O', o: 2, lp: 2 }, { s: 'O', lp: 3, fc: '−' }, { s: 'O', lp: 3, fc: '−' }], polar: null, polarWhy: 'Es un ion. Su forma es trigonal plana y simétrica (resonancia: los 3 enlaces C–O son iguales).', note: 'Tiene 3 formas resonantes: el doble enlace "se reparte" entre los tres O.' },
+  { id: 'NO3', f: 'NO₃⁻', name: 'ion nitrato', central: 'N', atoms: { N: 1, O: 3 }, charge: -1, X: 3, E: 0, cfc: '+', lig: [{ s: 'O', o: 2, lp: 2 }, { s: 'O', lp: 3, fc: '−' }, { s: 'O', lp: 3, fc: '−' }], polar: null, polarWhy: 'Es un ion. Forma trigonal plana simétrica (resonancia).', note: 'Formas resonantes: el doble enlace se reparte entre los tres O.' },
+  { id: 'NO2m', f: 'NO₂⁻', name: 'ion nitrito', central: 'N', atoms: { N: 1, O: 2 }, charge: -1, X: 2, E: 1, lig: [{ s: 'O', o: 2, lp: 2 }, { s: 'O', lp: 3, fc: '−' }], polar: null, polarWhy: 'Es un ion. Su forma es angular, como el SO₂.', angle: '≈115° (menor de 120°)', arcText: '≈115°', note: 'Dos formas resonantes O=N–O⁻ ↔ ⁻O–N=O.', alias: ['NO2-'] },
+  { id: 'SO4', f: 'SO₄²⁻', name: 'ion sulfato', central: 'S', atoms: { S: 1, O: 4 }, charge: -2, X: 4, E: 0, lig: [{ s: 'O', o: 2, lp: 2 }, { s: 'O', o: 2, lp: 2 }, { s: 'O', lp: 3, fc: '−' }, { s: 'O', lp: 3, fc: '−' }], polar: null, polarWhy: 'Es un ion. Su forma es tetraédrica y simétrica.', note: 'También vale con 4 enlaces S–O sencillos y cargas formales (S²⁺): el S sigue teniendo 4 dominios y 0 pares libres.' },
+  { id: 'ClO4', f: 'ClO₄⁻', name: 'ion perclorato', central: 'Cl', atoms: { Cl: 1, O: 4 }, charge: -1, X: 4, E: 0, lig: [{ s: 'O', o: 2, lp: 2 }, { s: 'O', o: 2, lp: 2 }, { s: 'O', o: 2, lp: 2 }, { s: 'O', lp: 3, fc: '−' }], polar: null, polarWhy: 'Es un ion. Su forma es tetraédrica y simétrica.', note: 'También se acepta con 4 enlaces sencillos y cargas formales: 4 dominios, 0 pares libres en el Cl.' },
+  // --- Especies reales añadidas para que el Laboratorio solo construya moléculas que existen ---
+  { id: 'NO2p', f: 'NO₂⁺', name: 'ion nitronio', central: 'N', atoms: { N: 1, O: 2 }, charge: 1, X: 2, E: 0, cfc: '+', lig: [{ s: 'O', o: 2, lp: 2 }, { s: 'O', o: 2, lp: 2 }], polar: null, polarWhy: 'Es un ion. Su forma es lineal y simétrica, como el CO₂.', alias: ['NO2+'] },
+  { id: 'PH3', f: 'PH₃', name: 'fosfina', central: 'P', atoms: { P: 1, H: 3 }, charge: 0, X: 3, E: 1, lig: [{ s: 'H' }, { s: 'H' }, { s: 'H' }], polar: true, polarWhy: 'Pirámide trigonal: los dipolos P–H no se anulan (son pequeños).', angle: '≈93,5° (menor de 109,5°)', arcText: '≈93,5°' },
+  { id: 'PO4', f: 'PO₄³⁻', name: 'ion fosfato', central: 'P', atoms: { P: 1, O: 4 }, charge: -3, X: 4, E: 0, lig: [{ s: 'O', o: 2, lp: 2 }, { s: 'O', lp: 3, fc: '−' }, { s: 'O', lp: 3, fc: '−' }, { s: 'O', lp: 3, fc: '−' }], polar: null, polarWhy: 'Es un ion. Su forma es tetraédrica y simétrica (resonancia).', note: 'También vale con 4 enlaces P–O sencillos y cargas formales: 4 dominios y 0 pares libres en el P.' },
+  { id: 'SO3m', f: 'SO₃²⁻', name: 'ion sulfito', central: 'S', atoms: { S: 1, O: 3 }, charge: -2, X: 3, E: 1, lig: [{ s: 'O', o: 2, lp: 2 }, { s: 'O', lp: 3, fc: '−' }, { s: 'O', lp: 3, fc: '−' }], polar: null, polarWhy: 'Es un ion. Su forma es de pirámide trigonal, como el NH₃.', angle: '≈106° (menor de 109,5°)', arcText: '≈106°', note: 'Ojo: no confundir con el SO₃ (trigonal plana). El sulfito tiene un par libre en el S.' },
+  { id: 'ClO3', f: 'ClO₃⁻', name: 'ion clorato', central: 'Cl', atoms: { Cl: 1, O: 3 }, charge: -1, X: 3, E: 1, lig: [{ s: 'O', o: 2, lp: 2 }, { s: 'O', o: 2, lp: 2 }, { s: 'O', lp: 3, fc: '−' }], polar: null, polarWhy: 'Es un ion. Su forma es de pirámide trigonal.', angle: '≈107° (menor de 109,5°)', arcText: '≈107°' },
+  { id: 'ClF5', f: 'ClF₅', name: 'pentafluoruro de cloro', central: 'Cl', atoms: { Cl: 1, F: 5 }, charge: 0, X: 5, E: 1, lig: [{ s: 'F', lp: 3 }, { s: 'F', lp: 3 }, { s: 'F', lp: 3 }, { s: 'F', lp: 3 }, { s: 'F', lp: 3 }], polar: true, polarWhy: 'Pirámide cuadrada: el dipolo del F apical no se compensa.', angle: 'Algo menor de 90°', arcText: '<90°' },
+  { id: 'BrF3', f: 'BrF₃', name: 'trifluoruro de bromo', central: 'Br', atoms: { Br: 1, F: 3 }, charge: 0, X: 3, E: 2, lig: [{ s: 'F', lp: 3 }, { s: 'F', lp: 3 }, { s: 'F', lp: 3 }], polar: true, polarWhy: 'Forma de T: los dipolos no se anulan.', angle: '≈86° (menor de 90°)', arcText: '≈86°' },
+  { id: 'XeO3', f: 'XeO₃', name: 'trióxido de xenón', central: 'Xe', atoms: { Xe: 1, O: 3 }, charge: 0, X: 3, E: 1, lig: [{ s: 'O', o: 2, lp: 2 }, { s: 'O', o: 2, lp: 2 }, { s: 'O', o: 2, lp: 2 }], polar: true, polarWhy: 'Pirámide trigonal: los dipolos Xe–O no se anulan.', angle: '≈103° (menor de 109,5°)', arcText: '≈103°', note: 'Octeto expandido: el Xe usa sus 8 e⁻ (3 dobles enlaces + 1 par libre).' },
+  { id: 'SiH4', f: 'SiH₄', name: 'silano', central: 'Si', atoms: { Si: 1, H: 4 }, charge: 0, X: 4, E: 0, lig: [{ s: 'H' }, { s: 'H' }, { s: 'H' }, { s: 'H' }], polar: false, polarWhy: 'Tetraédrica con 4 ligandos iguales: los dipolos se anulan.' },
+  { id: 'SiCl4', f: 'SiCl₄', name: 'tetracloruro de silicio', central: 'Si', atoms: { Si: 1, Cl: 4 }, charge: 0, X: 4, E: 0, lig: [{ s: 'Cl', lp: 3 }, { s: 'Cl', lp: 3 }, { s: 'Cl', lp: 3 }, { s: 'Cl', lp: 3 }], polar: false, polarWhy: 'Tetraédrica con 4 ligandos iguales: los dipolos Si–Cl se anulan.' },
+  { id: 'SiF6', f: 'SiF₆²⁻', name: 'ion hexafluorosilicato', central: 'Si', atoms: { Si: 1, F: 6 }, charge: -2, X: 6, E: 0, cfc: '2−', lig: [{ s: 'F', lp: 3 }, { s: 'F', lp: 3 }, { s: 'F', lp: 3 }, { s: 'F', lp: 3 }, { s: 'F', lp: 3 }, { s: 'F', lp: 3 }], polar: null, polarWhy: 'Es un ion. Su forma es octaédrica y simétrica.', note: 'El Si (3.er periodo) puede expandir el octeto: 12 e⁻ a su alrededor.' },
+  { id: 'BF4', f: 'BF₄⁻', name: 'ion tetrafluoroborato', central: 'B', atoms: { B: 1, F: 4 }, charge: -1, X: 4, E: 0, cfc: '−', lig: [{ s: 'F', lp: 3 }, { s: 'F', lp: 3 }, { s: 'F', lp: 3 }, { s: 'F', lp: 3 }], polar: null, polarWhy: 'Es un ion. Su forma es tetraédrica y simétrica.', note: 'El B completa el octeto al aceptar un F⁻ (el BF₃ tenía solo 6 e⁻).' },
+  { id: 'I3', f: 'I₃⁻', name: 'ion triyoduro', central: 'I', atoms: { I: 3 }, charge: -1, X: 2, E: 3, cfc: '−', lig: [{ s: 'I', lp: 3 }, { s: 'I', lp: 3 }], polar: null, polarWhy: 'Es un ion. Su forma es lineal y simétrica.' }
+];
+const SP = Object.fromEntries(SPECIES.map(s => [s.id, s]));
+SPECIES.forEach(s => s.lig.forEach(l => { l.o = l.o || 1; l.lp = l.lp || 0; }));
+
+const FAMOUS = ['CO2', 'BeCl2', 'BF3', 'SO2', 'CH4', 'NH3', 'H2O', 'PCl5', 'SF4', 'ClF3', 'XeF2', 'SF6', 'BrF5', 'XeF4'];
+const PREDICT_ORDER = ['CH4', 'BeCl2', 'BF3', 'NH3', 'H2O', 'CO2', 'HCN', 'SO2', 'CH2O', 'CHCl3', 'NH4', 'CO3', 'PCl5', 'SF4', 'XeF4'];
+
+/** Nombres de geometría molecular para las opciones de respuesta */
+const MOL_NAMES = ['Lineal', 'Angular', 'Trigonal plana', 'Pirámide trigonal', 'Tetraédrica', 'Bipirámide trigonal', 'Balancín', 'Forma de T', 'Pirámide cuadrada', 'Cuadrada plana', 'Octaédrica'];
+
+/** Tipos de error para el diagnóstico */
+const ERRORS = {
+  elec_vs_mol: { name: 'Confundir geometría electrónica y molecular', tip: 'La geometría MOLECULAR solo mira dónde están los átomos. Los pares libres cuentan para la electrónica, pero son "invisibles" en la forma.' },
+  ignored_lp: { name: 'Olvidar los pares libres del átomo central', tip: 'Cuenta siempre los pares libres del átomo central: son dominios y empujan a los enlaces.' },
+  double_as_two: { name: 'Contar un enlace doble o triple como varios dominios', tip: 'Un enlace múltiple apunta en UNA dirección: cuenta como UN solo dominio.' },
+  angle_ideal: { name: 'Dar el ángulo ideal cuando hay pares libres', tip: 'Los pares libres repelen más y cierran los ángulos: NH₃ ≈107°, H₂O ≈104,5°.' },
+  polar_bonds: { name: 'Creer que enlaces polares ⇒ molécula polar', tip: 'Si la geometría es simétrica y los ligandos iguales, los dipolos se anulan (CO₂, BF₃, CCl₄).' },
+  polar_asym: { name: 'No ver la asimetría de una molécula polar', tip: 'Pares libres en el central o ligandos distintos rompen la simetría: los dipolos no se anulan.' },
+  hyb: { name: 'Hibridación mal deducida', tip: 'Hibridación = nº de dominios: 2 → sp, 3 → sp², 4 → sp³, 5 → sp³d, 6 → sp³d².' },
+  other: { name: 'Otros fallos', tip: 'Sigue siempre el orden: Lewis → dominios (X + E) → geometría electrónica → molecular.' }
+};
+</script>
+<script>
+'use strict';
+/* ============================================================================
+   2. VISOR 3D (three.js r128, sin OrbitControls)
+   - Rotación con arrastre (ratón / dedo), zoom con rueda o pellizco
+   - Giro automático que se puede pausar
+   - Los dominios (enlaces, pares libres) se mueven con un muelle amortiguado:
+     al cambiar la geometría "se repelen" y se recolocan solos.
+   ============================================================================ */
+const REDUCED_MOTION = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+/**
+ * Perfil del dispositivo: decide la calidad del 3D (resolución, suavizado, nº de polígonos)
+ * y algunos detalles de la interfaz (táctil o ratón).
+ */
+const DEVICE = (() => {
+  const mm = q => !!(window.matchMedia && window.matchMedia(q).matches);
+  const touch = mm('(pointer: coarse)') || ('ontouchstart' in window && navigator.maxTouchPoints > 0);
+  const small = Math.min(screen.width, screen.height) < 600;
+  const cores = navigator.hardwareConcurrency || 4, mem = navigator.deviceMemory || 4;
+  const tier = (mem <= 2 || cores <= 2 || (touch && cores <= 4 && mem <= 4 && small)) ? 'low' : (touch || small ? 'mid' : 'high');
+  return { touch, small, tier, maxDpr: { high: 2, mid: 1.75, low: 1.25 }[tier], seg: { high: 32, mid: 24, low: 16 }[tier], aa: tier !== 'low' };
+})();
+document.documentElement.setAttribute('data-input', DEVICE.touch ? 'touch' : 'mouse');
+const HAS_3D = typeof THREE !== 'undefined';
+
+const Viewer3D = HAS_3D ? (function () {
+  const Y = new THREE.Vector3(0, 1, 0);
+  const BOND_L = 2.1;            // longitud de enlace en unidades de escena
+  const ARC_R = 0.95;            // radio de los arcos de ángulo
+  const BALLOON_COLORS = [0xff6b6b, 0x4dabf7, 0x51cf66, 0xfcc419, 0xcc5de8, 0xff922b];
+  const viewers = [];
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const approach = (v, t, k) => v + (t - v) * Math.min(1, k);
+
+  /*
+   * Bucle de render compartido.
+   * - Solo se dibujan los visores visibles en pantalla (también el ampliado, que es position:fixed).
+   * - Calidad adaptativa: si los fotogramas van lentos se baja la resolución; si van sobrados, se sube.
+   */
+  const QUALITY = { pr: Math.min(window.devicePixelRatio || 1, DEVICE.maxDpr), avg: 1 / 60, t: 0 };
+  QUALITY.max = QUALITY.pr;
+  let last = performance.now();
+  function loop(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    let rendered = false;
+    for (const v of viewers) if (v.inView && v.el.getClientRects().length) rendered = v.frame(dt) || rendered;
+    if (rendered) {
+      QUALITY.avg = QUALITY.avg * 0.9 + dt * 0.1; QUALITY.t += dt;
+      if (QUALITY.t > 2) {
+        QUALITY.t = 0;
+        if (QUALITY.avg > 1 / 38 && QUALITY.pr > 0.75) QUALITY.pr = Math.max(0.75, QUALITY.pr - 0.25);
+        else if (QUALITY.avg < 1 / 57 && QUALITY.pr < QUALITY.max) QUALITY.pr = Math.min(QUALITY.max, QUALITY.pr + 0.25);
+      }
+    }
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  /* Geometrías reutilizadas */
+  const G = {
+    sphere: new THREE.SphereGeometry(1, DEVICE.seg, Math.round(DEVICE.seg * 0.75)),
+    lobe: new THREE.SphereGeometry(1, Math.round(DEVICE.seg * 0.85), Math.round(DEVICE.seg * 0.6)),
+    dot: new THREE.SphereGeometry(1, 10, 8),
+    cyl: (() => { const g = new THREE.CylinderGeometry(1, 1, 1, 18); g.translate(0, 0.5, 0); return g; })(),
+    cone: (() => { const g = new THREE.ConeGeometry(1, 1, 18); g.translate(0, 0.5, 0); return g; })()
+  };
+  const phong = (color, extra) => new THREE.MeshPhongMaterial(Object.assign({ color, shininess: 70, specular: 0x2a2a2a }, extra || {}));
+  const hex = c => new THREE.Color(c);
+
+  class Viewer {
+    constructor(el, opts) {
+      this.el = el;
+      this.opts = Object.assign({ showLP: true, showAngles: true, showLabels: true, showClouds: false, showBase: false, showTags: false, showDipoles: false, showOrbitals: false, showAtomic: false, autoRotate: !REDUCED_MOTION, label: 'Modelo 3D de la molécula' }, opts || {});
+      this.autoRotate = this.opts.autoRotate;
+      this.zoom = 9;
+      this.domains = []; this.dying = []; this.arcs = []; this.labels = [];
+      this.lpF = 1; this.cloudF = 0; this.baseF = 0; this.split = 0; this.splitT = 0;
+      this.hybF = 0; this.orbF = 0; this.atomicD = 0; this.atomicLabels = [];
+      this.physics = false; this.physPaused = false;
+
+      // Renderer y escena
+      this.renderer = new THREE.WebGLRenderer({ antialias: DEVICE.aa, alpha: true, powerPreference: DEVICE.tier === 'high' ? 'high-performance' : 'default' });
+      this._pr = QUALITY.pr; this.renderer.setPixelRatio(this._pr);
+      const c = this.renderer.domElement;
+      c.tabIndex = 0; c.setAttribute('role', 'img'); c.setAttribute('aria-label', this.opts.label + '. Arrastra para girar; flechas del teclado para girar, + y − para zoom, espacio para pausar.');
+      el.appendChild(c);
+      this.scene = new THREE.Scene();
+      this.camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+      this.camera.position.set(0, 0, this.zoom);
+      this.scene.add(new THREE.HemisphereLight(0xffffff, 0x4a5578, 0.85));
+      const dl = new THREE.DirectionalLight(0xffffff, 0.75); dl.position.set(4, 6, 8); this.scene.add(dl);
+      const dl2 = new THREE.DirectionalLight(0x9fb4ff, 0.25); dl2.position.set(-6, -3, -4); this.scene.add(dl2);
+      this.pivot = new THREE.Group(); this.pivot.rotation.x = 0.32;
+      this.spin = new THREE.Group(); this.spin.rotation.y = -0.35;
+      this.pivot.add(this.spin); this.scene.add(this.pivot);
+
+      // Materiales propios de cada visor (para animar opacidades por separado)
+      this.M = {
+        bond: phong(0x98a1b1),
+        lp: phong(0xffc21a, { transparent: true, opacity: 0.55, depthWrite: false, emissive: 0x4a3000 }),
+        elec: phong(0xc77700, { transparent: true }),
+        cloud: phong(0x7fa6ff, { transparent: true, opacity: 0, depthWrite: false }),
+        hyb: phong(0xa78bfa, { transparent: true, opacity: 0.62, depthWrite: false, emissive: 0x1d0f4a }),
+        arc: new THREE.MeshBasicMaterial({ color: 0xf0561d }),
+        arcLP: new THREE.MeshBasicMaterial({ color: 0xd6336c }),
+        polyLine: new THREE.LineBasicMaterial({ color: 0x6f7fb0, transparent: true, opacity: 0 }),
+        polyFace: new THREE.MeshBasicMaterial({ color: 0x5c7cfa, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false }),
+        polyDot: new THREE.MeshBasicMaterial({ color: 0x6f7fb0, transparent: true, opacity: 0 }),
+        dip: phong(0x0ca678),
+        res: phong(0xae3ec9, { emissive: 0x2a0a33 }),
+        string: phong(0x8a93a3),
+        // Orbitales: híbrido del central (σ), orbital del ligando (σ) y lóbulos π laterales
+        orbHyb: phong(0xb197fc, { transparent: true, opacity: 0, depthWrite: false, emissive: 0x2b1a5e }),
+        orbLig: phong(0x38d9a9, { transparent: true, opacity: 0, depthWrite: false }),
+        pi: phong(0x4dabf7, { transparent: true, opacity: 0, depthWrite: false, emissive: 0x0b2a4a }),
+        ligLp: phong(0xffc21a, { transparent: true, opacity: 0, depthWrite: false, emissive: 0x4a3000 })
+      };
+
+      // Átomo central
+      this.centralMat = phong(0x2f6fed);
+      this.central = new THREE.Mesh(G.sphere, this.centralMat);
+      this.centralR = 0.55; this.centralScale = 0.55;
+      this.spin.add(this.central);
+
+      // Figura base (poliedro) y dipolo resultante
+      this.poly = new THREE.Group(); this.spin.add(this.poly);
+      this.atomic = new THREE.Group(); this.spin.add(this.atomic); // orbitales atómicos s, p, d del central
+      this.resArrow = this._makeArrow(1, this.M.res, 0.075, 0.2, 0.36); this.resArrow.visible = false; this.spin.add(this.resArrow);
+
+      // Capa de etiquetas HTML
+      this.layer = document.createElement('div'); this.layer.className = 'vlayer'; el.appendChild(this.layer);
+      this.centralLabel = this._label('', 'central', () => new THREE.Vector3(0, 0, 0));
+      // Hibridación del átomo central: cartel fijo en la esquina del visor
+      this.hybEl = document.createElement('div'); this.hybEl.className = 'vhyb'; this.hybEl.setAttribute('aria-live', 'polite'); el.appendChild(this.hybEl);
+      this.resLabel = this._label('', 'res', () => this._resLabelPos || new THREE.Vector3());
+      this.capEl = document.createElement('div'); this.capEl.className = 'vcap'; el.appendChild(this.capEl);
+
+      // Barra de herramientas
+      const tb = document.createElement('div'); tb.className = 'vtools';
+      tb.innerHTML = '<button type="button" data-a="orb" aria-pressed="false" aria-label="Ver u ocultar todos los orbitales" title="Ver/ocultar orbitales">Orbitales</button><button type="button" data-a="rot"></button><button type="button" data-a="reset" aria-label="Restablecer la vista" title="Restablecer vista">⟲</button><button type="button" data-a="in" aria-label="Acercar" title="Acercar">+</button><button type="button" data-a="out" aria-label="Alejar" title="Alejar">−</button><button type="button" data-a="full" aria-label="Ver en pantalla completa" title="Pantalla completa (tecla F)">⛶</button>';
+      el.appendChild(tb);
+      this.rotBtn = tb.querySelector('[data-a="rot"]');
+      tb.addEventListener('click', e => {
+        const b = e.target.closest('button'); if (!b) return; this.wake();
+        const a = b.dataset.a;
+        if (a === 'rot') this.setAutoRotate(!this.autoRotate);
+        if (a === 'full') this.toggleFull();
+        if (a === 'orb') { const val = !this.opts.showOrbitals; if (this.onOpt) this.onOpt('showOrbitals', val); else this.setOption('showOrbitals', val); }
+        if (a === 'reset') this.resetView();
+        if (a === 'in') this.zoom = clamp(this.zoom * 0.85, 4.5, 20);
+        if (a === 'out') this.zoom = clamp(this.zoom * 1.18, 4.5, 20);
+      });
+      this._syncRotBtn();
+      this.hint = document.createElement('div'); this.hint.className = 'vhint'; this.hint.textContent = DEVICE.touch ? 'Arrastra con un dedo · pellizca para zoom' : 'Arrastra para girar · rueda: zoom · F: pantalla completa';
+      el.appendChild(this.hint);
+
+      this._bindControls(c);
+      this._ro = new ResizeObserver(() => this._resize()); this._ro.observe(el);
+      document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && this.el.classList.contains('vfull')) this.toggleFull(false); });
+      this._resize();
+      // Si el visor no está en pantalla (scroll u otra pestaña), no se dibuja
+      this.inView = true;
+      if ('IntersectionObserver' in window) new IntersectionObserver(es => { this.inView = es[es.length - 1].isIntersecting; if (this.inView) this.wake(); }).observe(el);
+      viewers.push(this);
+    }
+
+    /* ---------- Controles de ratón, táctil y teclado ---------- */
+    _bindControls(c) {
+      const ptrs = new Map(); let pinch0 = 0, zoom0 = 9;
+      const dist = () => { const p = [...ptrs.values()]; return Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y); };
+      c.addEventListener('pointerdown', e => {
+        c.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        this.dragging = true; this.hint.style.opacity = 0; this.wake();
+        if (ptrs.size === 2) { pinch0 = dist(); zoom0 = this.zoom; }
+      });
+      c.addEventListener('pointermove', e => {
+        const p = ptrs.get(e.pointerId); if (!p) return;
+        const dx = e.clientX - p.x, dy = e.clientY - p.y; p.x = e.clientX; p.y = e.clientY;
+        if (ptrs.size === 1) { this.spin.rotation.y += dx * 0.01; this.pivot.rotation.x = clamp(this.pivot.rotation.x + dy * 0.01, -1.5, 1.5); }
+        else if (ptrs.size === 2 && pinch0 > 0) { this.zoom = clamp(zoom0 * pinch0 / Math.max(10, dist()), 4.5, 20); }
+      });
+      const up = e => { this.wake(); ptrs.delete(e.pointerId); if (ptrs.size < 2) pinch0 = 0; if (ptrs.size === 0) this.dragging = false; };
+      c.addEventListener('pointerup', up); c.addEventListener('pointercancel', up);
+      c.addEventListener('wheel', e => { e.preventDefault(); this.wake(); this.zoom = clamp(this.zoom * (e.deltaY > 0 ? 1.08 : 0.93), 4.5, 20); }, { passive: false });
+      c.addEventListener('keydown', e => {
+        this.wake();
+        const k = e.key; let used = true;
+        if (k === 'ArrowLeft') this.spin.rotation.y -= 0.15;
+        else if (k === 'ArrowRight') this.spin.rotation.y += 0.15;
+        else if (k === 'ArrowUp') this.pivot.rotation.x = clamp(this.pivot.rotation.x - 0.15, -1.5, 1.5);
+        else if (k === 'ArrowDown') this.pivot.rotation.x = clamp(this.pivot.rotation.x + 0.15, -1.5, 1.5);
+        else if (k === '+' || k === '=') this.zoom = clamp(this.zoom * 0.88, 4.5, 20);
+        else if (k === '-') this.zoom = clamp(this.zoom * 1.12, 4.5, 20);
+        else if (k === ' ') this.setAutoRotate(!this.autoRotate);
+        else if (k === 'r' || k === 'R') this.resetView();
+        else if (k === 'f' || k === 'F') this.toggleFull();
+        else if (k === 'Escape' && this.el.classList.contains('vfull')) this.toggleFull(false);
+        else used = false;
+        if (used) e.preventDefault();
+      });
+    }
+    _resize() {
+      const w = this.el.clientWidth, h = this.el.clientHeight; if (!w || !h) return;
+      this.w = w; this.h = h; this.renderer.setSize(w, h, false);
+      this.camera.aspect = w / h; this.camera.updateProjectionMatrix();
+    }
+    _syncRotBtn() {
+      this.rotBtn.textContent = this.autoRotate ? '⏸' : '▶';
+      this.rotBtn.setAttribute('aria-label', this.autoRotate ? 'Pausar el giro automático' : 'Reanudar el giro automático');
+      this.rotBtn.title = this.rotBtn.getAttribute('aria-label');
+    }
+    /** Mantiene el render activo unos segundos (animaciones, cambios de opción…) */
+    wake(t) { this._wake = Math.max(this._wake || 0, t || 2); }
+    setAutoRotate(b) { this.autoRotate = !!b; this._syncRotBtn(); this.wake(); }
+    /** Pantalla completa: usa la API del navegador y, si no existe (iPhone), ocupa toda la ventana con CSS */
+    toggleFull(force) {
+      const on = force !== undefined ? !!force : !this.el.classList.contains('vfull');
+      if (on) {
+        // En "Predice" y "Método" no se puede ampliar mientras el resultado está oculto
+        const lk = this.el.parentElement && this.el.parentElement.querySelector('.lock');
+        if (lk && getComputedStyle(lk).display !== 'none' && getComputedStyle(lk).opacity !== '0') { toast('Primero responde: el 3D aún está oculto'); return; }
+        this.el.classList.add('vfull'); document.body.classList.add('noscroll');
+        if (this.el.parentElement) this.el.parentElement.style.zIndex = '200'; // por encima de cualquier contenedor fijo/sticky
+        if (this.el.requestFullscreen) this.el.requestFullscreen().catch(() => {});
+      } else {
+        this.el.classList.remove('vfull'); document.body.classList.remove('noscroll');
+        if (this.el.parentElement) this.el.parentElement.style.zIndex = '';
+        if (document.fullscreenElement === this.el && document.exitFullscreen) document.exitFullscreen().catch(() => {});
+      }
+      const b = this.el.querySelector('.vtools [data-a="full"]');
+      this.wake(); b.textContent = on ? '✕' : '⛶'; b.setAttribute('aria-label', on ? 'Salir de pantalla completa' : 'Ver en pantalla completa'); b.title = on ? 'Salir (Esc)' : 'Pantalla completa (tecla F)';
+      this.renderer.domElement.focus();
+    }
+    resetView() { this.wake(); this.pivot.rotation.x = 0.32; this.spin.rotation.y = -0.35; this.zoom = 9; }
+    setCaption(html) { this.capEl.innerHTML = html ? '<span>' + html + '</span>' : ''; }
+    setOption(name, val) {
+      this.opts[name] = val; this.wake(); if (name === 'showDipoles') this._dirty = true;
+      if (name === 'showOrbitals' && val) this.opts.showAtomic = false;   // no se pueden ver a la vez los atómicos y los híbridos
+      if (name === 'showAtomic' && val) this.opts.showOrbitals = false;
+      const ob = this.el.querySelector('.vtools [data-a="orb"]'); if (ob) ob.setAttribute('aria-pressed', !!this.opts.showOrbitals);
+    }
+
+    /* ---------- Etiquetas HTML que siguen a los objetos 3D ---------- */
+    _label(text, cls, posFn) {
+      const d = document.createElement('div'); d.className = 'vlabel ' + cls; d.innerHTML = text;
+      this.layer.appendChild(d);
+      const L = { el: d, pos: posFn, show: true };
+      this.labels.push(L); return L;
+    }
+    _removeLabel(L) { if (!L) return; L.el.remove(); this.labels = this.labels.filter(x => x !== L); }
+
+    /* ---------- Flecha (cilindro + cono) a lo largo de +Y local ---------- */
+    _makeArrow(len, mat, r, headR, headL) {
+      const g = new THREE.Group();
+      const shaft = new THREE.Mesh(G.cyl, mat); const head = new THREE.Mesh(G.cone, mat);
+      g.add(shaft); g.add(head); g.userData = { shaft, head, r, headR, headL };
+      this._setArrowLen(g, len); return g;
+    }
+    _setArrowLen(g, len) {
+      const u = g.userData; const sl = Math.max(0.05, len - u.headL);
+      u.shaft.scale.set(u.r, sl, u.r); u.head.scale.set(u.headR, u.headL, u.headR); u.head.position.y = sl;
+    }
+
+    /* ---------- Construcción de cada dominio ---------- */
+    _makeDomain(nd) {
+      const d = {
+        type: nd.type, lig: nd.lig || null, order: nd.order || 1, tag: nd.tag || null, color: nd.color || null,
+        piDir: nd.piDir ? new THREE.Vector3().fromArray(nd.piDir) : null, lp: nd.lp || 0,
+        dir: new THREE.Vector3().fromArray(nd.dir).normalize(),
+        target: new THREE.Vector3().fromArray(nd.dir).normalize(),
+        vel: new THREE.Vector3(), scale: 0, targetScale: 1, group: new THREE.Group(), dying: false, clouds: [], label: null, tagLabel: null
+      };
+      this.spin.add(d.group);
+      this._buildDomainMeshes(d);
+      return d;
+    }
+    _buildDomainMeshes(d) {
+      // Limpia lo anterior
+      while (d.group.children.length) { const ch = d.group.children.pop(); if (ch.userData.ownMat) ch.material.dispose(); }
+      d.clouds = []; d.dipArrow = null; d.bonds = []; d.sigma = []; d.pis = [];
+      (d.piLabels || []).forEach(l => this._removeLabel(l)); d.piLabels = [];
+      const L = BOND_L;
+      if (d.type === 'X') {
+        const n = d.order, r = n === 1 ? 0.085 : 0.062, gap = 0.17;
+        for (let k = 0; k < n; k++) {
+          const b = new THREE.Mesh(G.cyl, this.M.bond);
+          b.scale.set(r, L, r); b.position.x = (k - (n - 1) / 2) * gap; b.userData.k = k; d.group.add(b); d.bonds.push(b);
+          const cl = new THREE.Mesh(G.lobe, this.M.cloud); cl.position.y = L * 0.5; cl.scale.set(0.3, L * 0.4, 0.3); cl.renderOrder = 3; cl.userData.k = k;
+          d.group.add(cl); d.clouds.push(cl);
+        }
+        const el = ELEMENTS[d.lig] || { r: 0.6 };
+        const rad = 0.2 + el.r * 0.24;
+        const atomMat = phong(LIGAND_COLORS[d.lig] || LIGAND_COLORS.X);
+        const atom = new THREE.Mesh(G.sphere, atomMat); atom.userData.ownMat = true;
+        atom.scale.setScalar(rad); atom.position.y = L; d.group.add(atom);
+        d.atomR = rad;
+        // Orbitales del enlace: σ = solapamiento frontal (en el eje); π = solapamiento lateral (a los lados del eje)
+        const hy = new THREE.Mesh(G.lobe, this.M.orbHyb); hy.scale.set(0.34, 0.72, 0.34); hy.position.y = 0.72; hy.renderOrder = 5;
+        const isH = d.lig === 'H';
+        const lo = new THREE.Mesh(isH ? G.sphere : G.lobe, this.M.orbLig); lo.renderOrder = 5;
+        if (isH) { lo.scale.setScalar(0.44); lo.position.y = L; } else { lo.scale.set(0.3, 0.62, 0.3); lo.position.y = L - 0.6; }
+        d.group.add(hy); d.group.add(lo); d.sigma = [hy, lo];
+        for (let k = 0; k < n - 1; k++) for (const sg of [-1, 1]) {
+          const m = new THREE.Mesh(G.lobe, this.M.pi); m.scale.set(0.15, L * 0.4, 0.15); m.position.y = L * 0.5;
+          m.userData.k = k; m.userData.sg = sg; m.renderOrder = 6; d.group.add(m); d.pis.push(m);
+        }
+        // Pares libres del ligando (orbitales llenos que no forman enlace)
+        d.ligLps = [];
+        for (let k = 0; k < d.lp; k++) { const m = new THREE.Mesh(G.lobe, this.M.ligLp); m.renderOrder = 6; d.group.add(m); d.ligLps.push(m); }
+        if (!d.sigmaLabel) d.sigmaLabel = this._label('σ frontal', 'orb sig', () => d.dir.clone().multiplyScalar(L * 0.5 * d.scale));
+        for (let k = 0; k < n - 1; k++) d.piLabels.push(this._label('π lateral', 'orb pi', () => d.dir.clone().multiplyScalar(L * 0.5 * d.scale).add(((d.perpW && d.perpW[k]) || new THREE.Vector3()).clone().multiplyScalar(0.72))));
+        if (!d.label) d.label = this._label('', 'atom', () => d.dir.clone().multiplyScalar(L * d.scale));
+        d.label.el.textContent = d.lig || 'X';
+      } else if (d.type === 'E') {
+        const lobe = new THREE.Mesh(G.lobe, this.M.lp); lobe.scale.set(0.6, 0.98, 0.6); lobe.position.y = 0.98; lobe.renderOrder = 4;
+        d.group.add(lobe);
+        for (const s of [-1, 1]) { const e = new THREE.Mesh(G.dot, this.M.elec); e.scale.setScalar(0.075); e.position.set(s * 0.14, 1.22, 0); d.group.add(e); }
+      } else if (d.type === 'H') {
+        const lobe = new THREE.Mesh(G.lobe, this.M.hyb); lobe.scale.set(0.5, 1.15, 0.5); lobe.position.y = 1.15; lobe.renderOrder = 4; d.group.add(lobe);
+        const back = new THREE.Mesh(G.lobe, this.M.hyb); back.scale.set(0.22, 0.3, 0.22); back.position.y = -0.18; d.group.add(back);
+      } else if (d.type === 'B') {
+        const col = d.color != null ? d.color : 0xff6b6b;
+        const m = phong(col, { shininess: 110, specular: 0x666666 });
+        const ball = new THREE.Mesh(G.sphere, m); ball.userData.ownMat = true; ball.scale.set(0.42, 0.52, 0.42); ball.position.y = L + 0.1; d.group.add(ball);
+        const knotM = phong(col); const knot = new THREE.Mesh(G.cone, knotM); knot.userData.ownMat = true; knot.scale.set(0.08, 0.14, 0.08); knot.position.y = L - 0.5; d.group.add(knot);
+        const str = new THREE.Mesh(G.cyl, this.M.string); str.scale.set(0.014, L - 0.45, 0.014); d.group.add(str);
+      }
+      if (d.tag && !d.tagLabel) d.tagLabel = this._label(d.tag, 'tag', () => d.dir.clone().multiplyScalar((BOND_L + 0.8) * d.scale));
+      if (d.tagLabel) d.tagLabel.el.textContent = d.tag || '';
+      this._buildDipole(d);
+    }
+    _buildDipole(d) {
+      d.delta = 0;
+      if (d.type !== 'X') return;
+      const ce = ELEMENTS[this.centralSym], le = ELEMENTS[d.lig];
+      if (!ce || !le) return;
+      const delta = le.en - ce.en; d.delta = delta;
+      if (Math.abs(delta) < 0.05) return;
+      const len = Math.min(BOND_L - 0.75, 0.45 + Math.abs(delta) * 0.95);
+      const a = this._makeArrow(len, this.M.dip, 0.045, 0.12, 0.24);
+      const y0 = 0.55;
+      if (delta > 0) a.position.set(0.3, y0, 0); else { a.position.set(0.3, y0 + len, 0); a.rotation.z = Math.PI; }
+      a.visible = false; d.group.add(a); d.dipArrow = a;
+    }
+
+    _setCentral(sym, color) {
+      this.centralSym = sym;
+      const el = ELEMENTS[sym] || { r: 0.8 };
+      this.centralR = 0.36 + el.r * 0.26;
+      this.centralMat.color = hex(color || CENTRAL_COLORS[sym] || '#2f6fed');
+      this.centralLabel.el.textContent = sym || '';
+      this.centralLabel.show = !!sym;
+    }
+
+    /**
+     * Carga una molécula. spec = { central, domains:[{type, dir, ideal, lig, order, tag}], arcs:[{a,b,real,ideal}] }
+     * Los dominios existentes se reutilizan (mismo tipo, en orden) para animar la transición.
+     */
+    setMolecule(spec, o) {
+      o = o || {}; this.wake(2.5);
+      this.physics = false; this.centralScaleT = 1;
+      const prevSym = this.centralSym;
+      this._setCentral(spec.central, spec.centralColor);
+      if (prevSym !== spec.central) this.centralScale = this.centralR * 0.6; // pequeño "pop"
+      const pools = {};
+      this.domains.forEach(d => (pools[d.type] = pools[d.type] || []).push(d));
+      const next = [];
+      spec.domains.forEach(nd => {
+        let d = pools[nd.type] && pools[nd.type].shift();
+        if (d) {
+          d.target.fromArray(nd.dir).normalize(); d.targetScale = 1;
+          d.piDir = nd.piDir ? new THREE.Vector3().fromArray(nd.piDir) : null;
+          const tagChanged = (d.tag || null) !== (nd.tag || null);
+          if (tagChanged) { this._removeLabel(d.tagLabel); d.tagLabel = null; d.tag = nd.tag || null; }
+          if (d.lig !== (nd.lig || null) || d.order !== (nd.order || 1) || d.lp !== (nd.lp || 0) || d.color !== (nd.color || null) || tagChanged || prevSym !== spec.central) {
+            d.lig = nd.lig || null; d.order = nd.order || 1; d.lp = nd.lp || 0; d.color = nd.color || null; this._buildDomainMeshes(d);
+          }
+        } else d = this._makeDomain(nd);
+        if (o.instant) { d.dir.copy(d.target); d.vel.set(0, 0, 0); d.scale = 1; }
+        next.push(d);
+      });
+      Object.values(pools).forEach(arr => arr.forEach(d => { d.targetScale = 0; d.dying = true; this.dying.push(d); }));
+      this.domains = next;
+      // Arcos de ángulo
+      this.arcs.forEach(a => { this.spin.remove(a.mesh); a.mesh.geometry.dispose(); this._removeLabel(a.label); });
+      this.arcs = (spec.arcs || []).map(a => {
+        const mesh = new THREE.Mesh(new THREE.BufferGeometry(), a.lp ? this.M.arcLP : this.M.arc); this.spin.add(mesh);
+        const txt = a.real + (a.ideal ? '<i>ideal ' + a.ideal + '</i>' : '');
+        const arc = { a: a.a, b: a.b, mesh, mid: new THREE.Vector3() };
+        arc.label = this._label(txt, 'angle', () => arc.mid);
+        return arc;
+      });
+      this._buildPoly(spec.domains.map(d => d.ideal || d.dir));
+      if (this.atomicD !== spec.domains.length) this._buildAtomic(spec.domains.length);
+      this._dirty = true;
+    }
+
+    /* Poliedro de la geometría electrónica: aristas = pares de vértices no opuestos */
+    _buildPoly(dirs) {
+      while (this.poly.children.length) { const c = this.poly.children.pop(); if (c.geometry && c.geometry !== G.dot) c.geometry.dispose(); }
+      const n = dirs.length; if (n < 2) return;
+      const P = dirs.map(v => new THREE.Vector3().fromArray(v).normalize().multiplyScalar(BOND_L));
+      const edge = (i, j) => P[i].clone().normalize().dot(P[j].clone().normalize()) > -0.985;
+      const seg = [], tri = [];
+      for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) if (n === 2 || edge(i, j)) seg.push(...P[i].toArray(), ...P[j].toArray());
+      if (n >= 3) for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) for (let k = j + 1; k < n; k++)
+        if (edge(i, j) && edge(j, k) && edge(i, k)) tri.push(...P[i].toArray(), ...P[j].toArray(), ...P[k].toArray());
+      const lg = new THREE.BufferGeometry(); lg.setAttribute('position', new THREE.Float32BufferAttribute(seg, 3));
+      this.poly.add(new THREE.LineSegments(lg, this.M.polyLine));
+      if (tri.length) { const fg = new THREE.BufferGeometry(); fg.setAttribute('position', new THREE.Float32BufferAttribute(tri, 3)); this.poly.add(new THREE.Mesh(fg, this.M.polyFace)); }
+      P.forEach(p => { const d = new THREE.Mesh(G.dot, this.M.polyDot); d.scale.setScalar(0.07); d.position.copy(p); this.poly.add(d); });
+    }
+
+    /**
+     * Orbitales atómicos del átomo central (s, p y, si hace falta, d).
+     * Los que se mezclan para dar los D híbridos se ven intensos; los demás, tenues ("sin hibridar").
+     * Ejes de la escena: X → pₓ, Y (arriba) → p_z, Z (hacia ti) → p_y.
+     */
+    _buildAtomic(D) {
+      while (this.atomic.children.length) { const c = this.atomic.children.pop(); c.material.dispose(); if (c.geometry !== G.lobe && c.geometry !== G.sphere) c.geometry.dispose(); }
+      this.atomicLabels.forEach(l => this._removeLabel(l)); this.atomicLabels = [];
+      this.atomicD = D; if (D < 2) return;
+      const add = (geo, color, used, sc, pos, rot) => {
+        const m = new THREE.Mesh(geo, phong(color, { transparent: true, opacity: 0, depthWrite: false }));
+        m.userData = { ownMat: true, base: used ? 0.6 : 0.1 }; m.scale.set(sc[0], sc[1], sc[2]); m.position.set(pos[0], pos[1], pos[2]);
+        if (rot) m.rotation.set(rot[0], rot[1], rot[2]); m.renderOrder = 6; this.atomic.add(m);
+      };
+      const lab = (html, used, pos) => this.atomicLabels.push(this._label(html + (used ? '' : '<i>sin hibridar</i>'), 'orb at' + (used ? '' : ' dim'), () => new THREE.Vector3(pos[0], pos[1], pos[2])));
+      add(G.sphere, 0x51cf66, true, [0.8, 0.8, 0.8], [0, 0, 0]); lab('s', true, [0.7, 0.7, 0.7]);
+      [['p<sub>x</sub>', [1, 0, 0], D >= 2], ['p<sub>z</sub>', [0, 1, 0], D >= 3], ['p<sub>y</sub>', [0, 0, 1], D >= 4]].forEach(([name, ax, used]) => {
+        const rot = ax[0] ? [0, 0, Math.PI / 2] : ax[2] ? [Math.PI / 2, 0, 0] : null;
+        [1, -1].forEach(sg => add(G.lobe, sg > 0 ? 0xff6b6b : 0x4dabf7, used, [0.34, 0.78, 0.34], ax.map(c => c * 0.86 * sg), rot));
+        lab(name, used, ax.map(c => c * 1.95));
+      });
+      if (D >= 5) { // d_z²: dos lóbulos y un anillo
+        [1, -1].forEach(sg => add(G.lobe, 0xffa94d, true, [0.26, 0.66, 0.26], [0, 0.9 * sg, 0]));
+        add(new THREE.TorusGeometry(0.55, 0.15, 12, 36), 0x9775fa, true, [1, 1, 1], [0, 0, 0], [Math.PI / 2, 0, 0]);
+        lab('d<sub>z²</sub>', true, [0, -2.05, 0]);
+      }
+      if (D >= 6) { // d_x²−y²: cuatro lóbulos en el plano
+        [[1, 0, 0xffa94d], [-1, 0, 0xffa94d], [0, 1, 0x9775fa], [0, -1, 0x9775fa]].forEach(([x, z, c]) => add(G.lobe, c, true, [0.26, 0.64, 0.26], [x * 0.84, 0, z * 0.84], x ? [0, 0, Math.PI / 2] : [Math.PI / 2, 0, 0]));
+        lab('d<sub>x²−y²</sub>', true, [-2.05, 0, 0]);
+      }
+    }
+
+    /* ---------- Modo "globos" con física de repulsión real ---------- */
+    setBalloons(n, scatter) {
+      this.physics = true; this.physPaused = false; this._settled = false; this._calm = 0;
+      this._setCentral('', '#7c869c'); this.centralR = 0.22;
+      this.arcs.forEach(a => { this.spin.remove(a.mesh); this._removeLabel(a.label); }); this.arcs = [];
+      this._buildPoly([]);
+      const cur = this.domains.filter(d => d.type === 'B');
+      this.domains.filter(d => d.type !== 'B').forEach(d => { d.targetScale = 0; d.dying = true; this.dying.push(d); });
+      const next = [];
+      for (let i = 0; i < n; i++) {
+        let d = cur.shift();
+        if (!d) {
+          const v = new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize();
+          d = this._makeDomain({ type: 'B', dir: v.toArray(), color: BALLOON_COLORS[i % BALLOON_COLORS.length] });
+        }
+        d.targetScale = 1; next.push(d);
+      }
+      cur.forEach(d => { d.targetScale = 0; d.dying = true; this.dying.push(d); });
+      this.domains = next;
+      if (scatter) this.scatter();
+    }
+    scatter() {
+      this._settled = false; this._calm = 0;
+      // Todos juntos en una zona: así se ve claramente cómo se separan
+      const base = new THREE.Vector3(0.3, 0.8, 0.5).normalize();
+      this.domains.forEach(d => {
+        d.dir.copy(base).add(new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).multiplyScalar(0.6)).normalize();
+        d.vel.set(0, 0, 0);
+      });
+    }
+    _physicsStep(dt) {
+      const B = this.domains, n = B.length, f = new THREE.Vector3(), tmp = new THREE.Vector3();
+      let maxV = 0;
+      for (let i = 0; i < n; i++) {
+        f.set(0, 0, 0);
+        for (let j = 0; j < n; j++) if (j !== i) { tmp.subVectors(B[i].dir, B[j].dir); const r = tmp.length() + 1e-3; f.addScaledVector(tmp, 1 / (r * r * r)); }
+        f.addScaledVector(B[i].dir, -f.dot(B[i].dir));
+        B[i].vel.addScaledVector(f, dt * 7);
+      }
+      for (const d of B) {
+        d.vel.multiplyScalar(Math.exp(-3.2 * dt));
+        d.dir.addScaledVector(d.vel, dt).normalize();
+        d.vel.addScaledVector(d.dir, -d.vel.dot(d.dir));
+        maxV = Math.max(maxV, d.vel.length());
+      }
+      if (maxV < 0.015) this._calm += dt; else this._calm = 0;
+      if (this._calm > 0.5 && !this._settled) { this._settled = true; if (this.onSettle) this.onSettle(n); }
+    }
+
+    setSplit(on) { this.splitT = on ? 1 : 0; this.wake(); }
+    /** Dibuja la figura geométrica que forman ahora mismo los dominios (para los globos) */
+    polyFromCurrent() { this._buildPoly(this.domains.map(d => d.dir.toArray())); }
+
+    /* ---------- Fotograma ---------- */
+    frame(dt) {
+      // Calidad adaptativa: si cambia la resolución elegida, se reajusta el lienzo
+      if (this._pr !== QUALITY.pr) { this._pr = QUALITY.pr; this.renderer.setPixelRatio(this._pr); this.w = 0; }
+      if (this.el.clientWidth !== this.w || this.el.clientHeight !== this.h) { this._resize(); this.wake(0.5); } // p. ej. al ampliar el visor
+      // Render bajo demanda: si nada se mueve, no se redibuja (ahorra batería y CPU)
+      this._wake = Math.max(0, (this._wake || 0) - dt);
+      if (!(this.autoRotate || this.dragging || this.physics || this._wake > 0 || this._moving)) return false;
+      if (this.autoRotate && !this.dragging) this.spin.rotation.y += dt * 0.35;
+      this.camera.position.z = this.zoom * Math.max(1, 1.08 / Math.max(0.3, this.camera.aspect));
+      const O = this.opts;
+      this.lpF = approach(this.lpF, O.showLP ? 1 : 0, dt * 4);
+      this.cloudF = approach(this.cloudF, O.showClouds ? 1 : 0, dt * 4);
+      this.baseF = approach(this.baseF, O.showBase ? 1 : 0, dt * 4);
+      this.split = approach(this.split, this.splitT, dt * 3);
+      this.hybF = approach(this.hybF, O.showOrbitals ? 1 : 0, dt * 4);
+      this.orbF = approach(this.orbF, O.showAtomic ? 1 : 0, dt * 3);
+      this.M.orbHyb.opacity = 0.5 * this.hybF; this.M.orbLig.opacity = 0.45 * this.hybF; this.M.pi.opacity = 0.55 * this.hybF; this.M.ligLp.opacity = 0.5 * this.hybF;
+      this.atomic.visible = this.orbF > 0.01;
+      if (this.atomic.visible) this.atomic.children.forEach(m => { m.material.opacity = m.userData.base * this.orbF; });
+      this.atomic.scale.setScalar(0.5 + 0.5 * this.orbF);
+      this.atomicLabels.forEach(L => { L.show = !!O.showAtomic && this.orbF > 0.6; });
+      this.M.lp.opacity = 0.55 * this.lpF; this.M.elec.opacity = this.lpF;
+      this.M.cloud.opacity = 0.2 * this.cloudF;
+      this.M.polyLine.opacity = 0.75 * this.baseF; this.M.polyFace.opacity = 0.09 * this.baseF; this.M.polyDot.opacity = 0.9 * this.baseF;
+      this.poly.visible = this.baseF > 0.01;
+      this.centralScale = approach(this.centralScale, this.centralR * (1 - 0.45 * this.orbF), dt * 8);
+      this.central.scale.setScalar(this.centralScale);
+
+      let moving = !!this._dirty;
+      if (this.physics && !this.physPaused) { this._physicsStep(dt); moving = true; }
+      const all = this.domains.concat(this.dying);
+      for (const d of all) {
+        if (!this.physics || d.type !== 'B') {
+          // Muelle amortiguado: produce un pequeño rebote, como si los pares "se empujaran"
+          const diff = d.target.clone().sub(d.dir);
+          d.vel.addScaledVector(diff, 70 * dt);
+          d.vel.multiplyScalar(Math.exp(-10 * dt));
+          d.dir.addScaledVector(d.vel, dt);
+          if (d.dir.lengthSq() < 0.01) d.dir.add(new THREE.Vector3(0.05, 0.03, 0.04));
+          d.dir.normalize();
+        }
+        d.scale = approach(d.scale, d.targetScale, dt * 7);
+        if (d.vel.lengthSq() > 1e-6 || Math.abs(d.scale - d.targetScale) > 0.003) moving = true;
+        let eff = d.type === 'E' ? d.scale * (0.2 + 0.8 * this.lpF) : d.scale;
+        eff *= 1 - 0.97 * this.orbF; // con los orbitales atómicos, la molécula se "recoge"
+        d.group.visible = eff > 0.01 && !(d.type === 'E' && this.lpF < 0.02);
+        d.group.quaternion.setFromUnitVectors(Y, d.dir);
+        d.group.scale.setScalar(Math.max(eff, 0.0001));
+        // Nubes de los enlaces (y separación de enlaces múltiples)
+        d.clouds.forEach(cl => {
+          cl.visible = this.cloudF > 0.01;
+          const w = d.order > 1 ? 0.3 + 0.12 * (1 - this.split) : 0.3; cl.scale.set(w, BOND_L * 0.4, w);
+        });
+        if (d.type === 'X') {
+          // Dirección del enlace π (perpendicular al eje): fija en la molécula, no depende del giro del grupo
+          const qi = d.group.quaternion.clone().invert();
+          const p = d.piDir ? d.piDir.clone() : new THREE.Vector3(0, 1, 0);
+          p.addScaledVector(d.dir, -p.dot(d.dir));
+          if (p.lengthSq() < 1e-4) p.set(1, 0, 0).addScaledVector(d.dir, -d.dir.x);
+          p.normalize();
+          d.perpW = [p, new THREE.Vector3().crossVectors(d.dir, p).normalize()];
+          const p0 = p.clone().applyQuaternion(qi), p1 = d.perpW[1].clone().applyQuaternion(qi), n = d.order;
+          d.bonds.forEach(b => { const o = (b.userData.k - (n - 1) / 2) * 0.17; b.position.set(p0.x * o, 0, p0.z * o); });
+          d.clouds.forEach(cl => { const o = (cl.userData.k - (n - 1) / 2) * 0.36 * this.split; cl.position.set(p0.x * o, BOND_L * 0.5, p0.z * o); });
+          d.pis.forEach(m => { const v = m.userData.k ? p1 : p0, o = 0.34 * m.userData.sg; m.position.set(v.x * o, BOND_L * 0.5, v.z * o); });
+          const hv = this.hybF > 0.01; d.sigma.forEach(m => { m.visible = hv; }); d.pis.forEach(m => { m.visible = hv; });
+          if (d.ligLps.length) {
+            // Orientación: 1 par → hacia fuera; 2 → en el plano del σ (perpendicular al π), a 120° del enlace; 3 → tetraédrica
+            const Yv = new THREE.Vector3(0, 1, 0), q = new THREE.Vector3(p0.z, 0, -p0.x).normalize(), nl = d.ligLps.length;
+            d.ligLps.forEach((m, k) => {
+              let v;
+              if (nl === 1) v = Yv.clone();
+              else if (nl === 2) v = Yv.clone().multiplyScalar(0.5).addScaledVector(q, (k ? -1 : 1) * 0.866);
+              else { const a = k * 2 * Math.PI / 3; v = Yv.clone().multiplyScalar(0.334).add(p0.clone().multiplyScalar(Math.cos(a)).addScaledVector(q, Math.sin(a)).multiplyScalar(0.943)); }
+              v.normalize();
+              m.quaternion.setFromUnitVectors(Yv, v); m.scale.set(0.2, 0.36, 0.2);
+              m.position.set(0, BOND_L, 0).addScaledVector(v, (d.atomR || 0.3) + 0.22);
+              m.visible = hv;
+            });
+          }
+          const ol = !!O.showOrbitals && !d.dying && d.scale > 0.5 && this.orbF < 0.3;
+          if (d.sigmaLabel) d.sigmaLabel.show = ol;
+          d.piLabels.forEach(l => { l.show = ol; });
+        }
+        if (d.dipArrow) d.dipArrow.visible = !!O.showDipoles;
+        if (d.label) d.label.show = O.showLabels && !d.dying && d.scale > 0.4 && this.orbF < 0.5;
+        if (d.tagLabel) d.tagLabel.show = O.showTags && !d.dying && d.scale > 0.5 && (d.type !== 'E' || this.lpF > 0.5);
+      }
+      // Eliminar dominios que ya desaparecieron
+      this.dying = this.dying.filter(d => {
+        if (d.scale > 0.02) return true;
+        this.spin.remove(d.group);
+        d.group.children.forEach(ch => { if (ch.userData.ownMat) ch.material.dispose(); });
+        this._removeLabel(d.label); this._removeLabel(d.tagLabel); this._removeLabel(d.sigmaLabel); (d.piLabels || []).forEach(l => this._removeLabel(l)); return false;
+      });
+      if (moving) this._updateArcs();
+      this._updateDipoleResultant();
+      this.centralLabel.show = O.showLabels && !!this.centralSym;
+      const nDom = this.domains.length;
+      const hShow = !this.physics && nDom >= 2 && (this.hybF > 0.5 || this.orbF > 0.5);
+      const ht = hShow ? 'Átomo central ' + (this.centralSym && this.centralSym !== 'A' ? this.centralSym + ' ' : '') + '· hibridación <b>' + HYB[nDom] + '</b>' : '';
+      if (this.hybEl.innerHTML !== ht) this.hybEl.innerHTML = ht;
+      this.hybEl.style.display = hShow ? '' : 'none';
+      if (hShow) this.hint.style.display = 'none'; // el cartel de hibridación ocupa la esquina inferior
+      this.renderer.render(this.scene, this.camera);
+      this._updateLabels();
+      this._dirty = false; this._moving = moving;
+      return true;
+    }
+
+    _updateArcs() {
+      for (const arc of this.arcs) {
+        const A = this.domains[arc.a], B = this.domains[arc.b];
+        if (!A || !B) { arc.mesh.visible = false; continue; }
+        const a = A.dir, u = a.clone();
+        let w = B.dir.clone().sub(u.clone().multiplyScalar(B.dir.dot(u)));
+        if (w.lengthSq() < 1e-4) { // vectores opuestos: elegimos un plano visible
+          w = new THREE.Vector3(0, 1, 0); if (Math.abs(u.dot(w)) > 0.9) w.set(1, 0, 0);
+          w.sub(u.clone().multiplyScalar(w.dot(u)));
+        }
+        w.normalize();
+        const th = Math.acos(clamp(a.dot(B.dir), -1, 1));
+        const pts = [];
+        for (let i = 0; i <= 24; i++) { const t = th * i / 24; pts.push(u.clone().multiplyScalar(Math.cos(t)).add(w.clone().multiplyScalar(Math.sin(t))).multiplyScalar(ARC_R)); }
+        arc.mesh.geometry.dispose();
+        arc.mesh.geometry = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), DEVICE.tier === 'low' ? 16 : 28, 0.028, 6, false);
+        arc.mid.copy(u.clone().multiplyScalar(Math.cos(th / 2)).add(w.clone().multiplyScalar(Math.sin(th / 2))).multiplyScalar(ARC_R + 0.5));
+      }
+      this._arcsVisible();
+    }
+    _arcsVisible() {
+      for (const arc of this.arcs) {
+        const A = this.domains[arc.a], B = this.domains[arc.b];
+        const vis = this.opts.showAngles && this.orbF < 0.2 && A && B && A.scale > 0.6 && B.scale > 0.6 && (A.type !== 'E' || this.lpF > 0.5) && (B.type !== 'E' || this.lpF > 0.5);
+        arc.mesh.visible = !!vis; arc.label.show = !!vis;
+      }
+    }
+
+    _updateDipoleResultant() {
+      this._arcsVisible();
+      if (!this.opts.showDipoles) { this.resArrow.visible = false; this.resLabel.show = false; return; }
+      const sum = new THREE.Vector3();
+      this.domains.forEach(d => { if (d.type === 'X' && d.delta) sum.addScaledVector(d.dir, d.delta * d.scale); });
+      const m = sum.length();
+      if (m > 0.12) {
+        this.resArrow.visible = true;
+        this.resArrow.quaternion.setFromUnitVectors(Y, sum.clone().normalize());
+        const len = 1.1 + m * 1.1; this._setArrowLen(this.resArrow, len);
+        this.resArrow.position.set(0, 0, 0);
+        this._resLabelPos = sum.clone().normalize().multiplyScalar(len + 0.35);
+        this.resLabel.el.className = 'vlabel res'; this.resLabel.el.textContent = 'μ total ≠ 0 → polar';
+      } else {
+        this.resArrow.visible = false;
+        this._resLabelPos = new THREE.Vector3(0, -0.15, 0);
+        this.resLabel.el.className = 'vlabel res0'; this.resLabel.el.textContent = 'μ total = 0 (se anulan)';
+      }
+      this.resLabel.show = true;
+    }
+
+    _updateLabels() {
+      this.spin.updateMatrixWorld(true);
+      const w = this.w || 1, h = this.h || 1, v = new THREE.Vector3();
+      for (const L of this.labels) {
+        if (!L.show) { if (L.el.style.display !== 'none') L.el.style.display = 'none'; continue; }
+        v.copy(L.pos()); this.spin.localToWorld(v); v.project(this.camera);
+        if (v.z > 1) { L.el.style.display = 'none'; continue; }
+        L.el.style.display = '';
+        L.el.style.transform = 'translate(' + ((v.x + 1) / 2 * w).toFixed(1) + 'px,' + ((1 - v.y) / 2 * h).toFixed(1) + 'px) translate(-50%,-50%)';
+      }
+    }
+  }
+  return Viewer;
+})() : null;
+
+/** Visor de reserva si three.js no carga (sin conexión): la app sigue funcionando */
+class StubViewer {
+  constructor(el) {
+    el.classList.add('viewer');
+    el.innerHTML = '<div class="vfallback"><div><b>No se pudo cargar el visor 3D.</b><br>Comprueba la conexión a Internet (three.js se carga desde cdnjs). El resto de la app funciona igual.</div></div>';
+    this.opts = {};
+  }
+  setMolecule() {} toggleFull() {} setOption(n, v) { this.opts[n] = v; } setBalloons() {} scatter() {} setSplit() {} setAutoRotate() {} resetView() {} setCaption() {}
+}
+function createViewer(el, opts) { return HAS_3D ? new Viewer3D(el, opts) : new StubViewer(el); }
+</script>
+<script>
+'use strict';
+/* ============================================================================
+   3. UTILIDADES
+   ============================================================================ */
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => [...(r || document).querySelectorAll(s)];
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* almacenamiento no disponible */ } }
+};
+function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function sub(n) { return n > 1 ? '<sub>' + n + '</sub>' : ''; }
+/** Notación AXnEm con subíndices y colores */
+function notation(X, E, colored) {
+  if (!colored) return 'AX' + sub(X) + (E ? 'E' + sub(E) : '');
+  return 'A<span class="x">X' + sub(X) + '</span>' + (E ? '<span class="e">E' + sub(E) + '</span>' : '');
+}
+function geoOf(sp) { return GEOMETRIES[sp.X + ',' + sp.E]; }
+function plural(n, s, p) { return n === 1 ? s : (p || s + 's'); }
+let toastT = 0;
+function toast(msg) { const t = $('#toast'); t.innerHTML = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 3200); }
+function msgBox(kind, title, body) { return '<div class="msg ' + kind + '">' + (title ? '<b class="t">' + title + '</b>' : '') + body + '</div>'; }
+function chargeStr(c) { if (!c) return ''; const a = Math.abs(c); return (a > 1 ? a : '') + (c > 0 ? '+' : '−'); }
+function sumOrders(sp) { return sp.lig.reduce((s, l) => s + l.o, 0); }
+function angleText(sp) { return sp.angle || geoOf(sp).angleReal; }
+function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+
+/** Construye la especificación 3D a partir de X, E y (opcional) ligandos concretos */
+function buildSpec(X, E, central, ligs, orders, arcText, ligLps) {
+  const g = GEOMETRIES[X + ',' + E];
+  const domains = g.ideal.map((v, i) => ({
+    type: i < X ? 'X' : 'E', dir: g.real[i], ideal: v,
+    lig: i < X ? ((ligs && ligs[i]) || 'X') : null,
+    order: i < X ? ((orders && orders[i]) || 1) : 1,
+    tag: null,
+    piDir: i < X ? piDirFor(g, i) : null,
+    lp: i < X && ligLps ? ligLps[i] : 0
+  }));
+  const arcs = g.arcs.map((a, i) => Object.assign({}, a, (i === 0 && arcText) ? { real: arcText } : {}));
+  return { central, domains, arcs };
+}
+/** Dirección de referencia de los enlaces π (perpendicular al eje del enlace) */
+function piDirFor(g, i) {
+  if (g.D === 2) return i === 0 ? [0, 1, 0] : [0, 0, 1]; // lineal: los dos π son perpendiculares entre sí (como en CO₂)
+  if (g.D === 3) return [0, 0, 1];                      // trigonal plana: el π es perpendicular al plano
+  return [0, 1, 0];                                      // resto: se proyecta en el visor
+}
+/** Nº de enlaces σ y π (cada enlace múltiple = 1 σ + resto π) */
+function bondCounts(sp) { return { s: sp.X, p: sp.lig.reduce((t, l) => t + l.o - 1, 0) }; }
+/** Orbitales que se mezclan con D dominios */
+function orbitalMix(D) { const np = Math.max(0, Math.min(D - 1, 3)), nd = Math.max(0, D - 4); return { np, nd, free: 3 - np }; }
+function orbBoxes(D, mini) {
+  const m = orbitalMix(D), bx = (n, on) => Array.from({ length: n }, (_, i) => '<span class="' + (i < on ? 'on' : '') + '"></span>').join('');
+  return '<div class="orb' + (mini ? ' orb-mini' : '') + '"><div class="orb-g"><div class="bx">' + bx(1, 1) + '</div>s</div><div class="orb-g"><div class="bx">' + bx(3, m.np) + '</div>p</div>' + (D >= 5 ? '<div class="orb-g"><div class="bx">' + bx(5, m.nd) + '</div>d</div>' : '') + '</div>';
+}
+/** Frase sobre σ, π y orbitales sin hibridar */
+function sigmaPiText(sp, D) {
+  const c = bondCounts(sp), m = orbitalMix(D);
+  let t = c.s + ' σ (solapamiento frontal, en el eje)' + (c.p ? ' y ' + c.p + ' π (solapamiento lateral)' : '') + '.';
+  if (c.p && c.p <= m.free) t += ' Los π se forman con ' + (c.p === 1 ? 'el orbital p' : 'los orbitales p') + ' sin hibridar del ' + sp.central + '.';
+  else if (c.p) t += ' Con octeto expandido, los π del ' + sp.central + ' se explican con orbitales d (ampliación).';
+  return t;
+}
+function speciesSpec(sp) { return buildSpec(sp.X, sp.E, sp.central, sp.lig.map(l => l.s), sp.lig.map(l => l.o), sp.arcText, sp.lig.map(l => l.lp)); }
+
+/** Polaridad (texto + estilo) */
+function polarityInfo(g, sp) {
+  if (sp) {
+    if (sp.polar === null) return { cls: 'apolar', label: 'Ion', why: sp.polarWhy };
+    return { cls: sp.polar ? 'polar' : 'apolar', label: sp.polar ? 'Polar' : 'Apolar', why: sp.polarWhy };
+  }
+  if (g.X === 1) return { cls: 'polar', label: 'Polar si A ≠ X', why: 'Diatómica: es polar si los dos átomos tienen distinta electronegatividad.' };
+  return g.symmetric
+    ? { cls: 'apolar', label: 'Apolar*', why: g.mol + ' simétrica: con ligandos iguales los dipolos de enlace se anulan. *Con ligandos distintos podría ser polar.' }
+    : { cls: 'polar', label: 'Polar', why: g.mol + ': los pares libres rompen la simetría y los dipolos de enlace no se anulan.' };
+}
+
+/** Explicación corta del porqué de la geometría */
+function whyGeometry(g) {
+  let t = 'El átomo central tiene <b>' + g.D + ' ' + plural(g.D, 'dominio') + '</b> (' + g.X + ' enlazante' + (g.X > 1 ? 's' : '') + (g.E ? ' + ' + g.E + ' ' + plural(g.E, 'libre') : '') + '). Para alejarse al máximo se orientan según una figura <b>' + g.elec.toLowerCase() + '</b>. ';
+  if (g.E) t += 'Los pares libres ocupan vértices pero no son átomos: no se "ven" en la forma, por eso la geometría molecular es <b>' + g.mol.toLowerCase() + '</b>. Además repelen más que los enlaces y cierran los ángulos. ';
+  else t += 'Todos los dominios son enlaces: la geometría molecular coincide con la electrónica. ';
+  if (g.key === '4,2') t += 'Los 2 pares libres se colocan opuestos (uno arriba y otro abajo) para estar lo más lejos posible. ';
+  if (g.key === '5,1') t += 'El par libre ocupa un vértice del octaedro; los 5 átomos forman una pirámide de base cuadrada. ';
+  return t;
+}
+
+/** Respuesta modelo tipo PAU */
+function modelAnswer(sp) {
+  const g = geoOf(sp), ce = sp.central, art = { 'Lineal': 'una recta', 'Trigonal plana': 'un triángulo equilátero', 'Tetraédrica': 'un tetraedro', 'Bipirámide trigonal': 'una bipirámide trigonal', 'Octaédrica': 'un octaedro' };
+  let t = '<p><b>1. Lewis.</b> ' + sp.f + ' tiene ' + valenceTotal(sp) + ' e⁻ de valencia. El átomo central es el ' + ce + ', unido a ' + sp.X + ' ' + plural(sp.X, 'átomo') + (sp.E ? ' y con ' + sp.E + ' ' + plural(sp.E, 'par libre', 'pares libres') : ' y sin pares libres') + '.</p>';
+  t += '<p><b>2. TRePEV.</b> El ' + ce + ' tiene ' + g.D + ' dominios electrónicos (' + notation(sp.X, sp.E) + '), que se orientan hacia los vértices de ' + art[g.elec] + ' para minimizar las repulsiones: geometría electrónica <b>' + g.elec.toLowerCase() + '</b>.</p>';
+  t += '<p><b>3. Forma.</b> ' + (sp.E ? 'Como ' + (sp.E === 1 ? 'uno de los dominios es un par libre' : sp.E + ' dominios son pares libres') + ', la geometría molecular (posición de los átomos) es <b>' + g.mol.toLowerCase() + '</b>.' : 'Al no haber pares libres, la geometría molecular coincide: <b>' + g.mol.toLowerCase() + '</b>.') + ' Ángulo: ' + angleText(sp) + (sp.E && g.D <= 4 ? ', menor que el ideal porque los pares libres repelen más que los enlazantes.' : '.') + ' Hibridación del ' + ce + ': <b>' + g.hyb + '</b>. Enlaces: ' + sigmaPiText(sp, g.D) + '</p>';
+  t += '<p><b>4. Polaridad.</b> ' + (sp.polar === null ? 'Es un ion, así que no se clasifica como molécula polar o apolar. ' + sp.polarWhy : (sp.polar ? 'Es <b>polar</b>: ' : 'Es <b>apolar</b>: ') + sp.polarWhy) + '</p>';
+  return t;
+}
+
+/* ---------- Electrones de valencia ---------- */
+function valenceParts(sp) { return Object.entries(sp.atoms).map(([s, n]) => ({ s, n, v: ELEMENTS[s].val })); }
+function valenceTotal(sp) { return valenceParts(sp).reduce((t, p) => t + p.n * p.v, 0) - sp.charge; }
+
+/* ---------- Estructura de Lewis en SVG ---------- */
+const LEWIS2D = {
+  '2,0': { l: [180, 0] }, '3,0': { l: [90, 210, 330] }, '2,1': { l: [210, 330], p: [90] },
+  '4,0': { l: [90, 0, 270, 180] }, '3,1': { l: [180, 0, 270], p: [90] }, '2,2': { l: [180, 0], p: [90, 270] },
+  '5,0': { l: [90, 270, 0, 140, 220] }, '4,1': { l: [90, 270, 150, 210], p: [0] }, '3,2': { l: [90, 270, 180], p: [35, 325] },
+  '2,3': { l: [180, 0], p: [90, 225, 315] }, '6,0': { l: [0, 60, 120, 180, 240, 300] }, '5,1': { l: [90, 0, 180, 215, 325], p: [270] },
+  '4,2': { l: [0, 90, 180, 270], p: [45, 225] }
+};
+function lewisSVG(sp, small) {
+  const lay = LEWIS2D[sp.X + ',' + sp.E], R = 76;
+  const U = a => [Math.cos(a * DEG), -Math.sin(a * DEG)];
+  const pair = (cx, cy, a, cls, r) => { const [ux, uy] = U(a); const px = -uy * 5.5, py = ux * 5.5; return '<circle class="' + cls + '" cx="' + (cx + px).toFixed(1) + '" cy="' + (cy + py).toFixed(1) + '" r="' + r + '"/><circle class="' + cls + '" cx="' + (cx - px).toFixed(1) + '" cy="' + (cy - py).toFixed(1) + '" r="' + r + '"/>'; };
+  let s = '';
+  sp.lig.forEach((l, i) => {
+    const a = lay.l[i], [ux, uy] = U(a), px = -uy, py = ux;
+    for (let k = 0; k < l.o; k++) {
+      const off = (k - (l.o - 1) / 2) * 7.5;
+      s += '<line class="lw-b" x1="' + (ux * 17 + px * off).toFixed(1) + '" y1="' + (uy * 17 + py * off).toFixed(1) + '" x2="' + (ux * (R - 17) + px * off).toFixed(1) + '" y2="' + (uy * (R - 17) + py * off).toFixed(1) + '"/>';
+    }
+    const lx = ux * R, ly = uy * R;
+    const rel = l.lp === 3 ? [0, 90, -90] : l.lp === 2 ? [62, -62] : l.lp === 1 ? [0] : [];
+    rel.forEach(r => { const b = a + r, [bx, by] = U(b); s += pair(lx + bx * 20, ly + by * 20, b, 'lw-ld', 2.6); });
+    s += '<text class="lw-l" x="' + lx.toFixed(1) + '" y="' + ly.toFixed(1) + '">' + l.s + '</text>';
+    if (l.fc) s += '<text class="lw-fc" x="' + (lx + 14).toFixed(1) + '" y="' + (ly - 14).toFixed(1) + '">' + l.fc + '</text>';
+  });
+  (lay.p || []).forEach(a => { const [ux, uy] = U(a); s += pair(ux * 26, uy * 26, a, 'lw-cp', 3.4); });
+  s += '<text class="lw-c" x="0" y="0">' + sp.central + '</text>';
+  if (sp.cfc) s += '<text class="lw-fc" x="16" y="-16">' + sp.cfc + '</text>';
+  const E = R + 34;
+  if (sp.charge) {
+    s += '<path class="lw-br" d="M' + (-E + 10) + ' ' + (-E + 8) + ' H' + (-E) + ' V' + (E - 8) + ' H' + (-E + 10) + ' M' + (E - 10) + ' ' + (-E + 8) + ' H' + E + ' V' + (E - 8) + ' H' + (E - 10) + '"/>';
+    s += '<text class="lw-q" x="' + (E + 6) + '" y="' + (-E + 10) + '">' + chargeStr(sp.charge) + '</text>';
+  }
+  const W = E + 30;
+  return '<svg viewBox="' + (-W) + ' ' + (-E - 4) + ' ' + (2 * W) + ' ' + (2 * E + 8) + '" role="img" aria-label="Estructura de Lewis de ' + sp.f + '"' + (small ? ' style="max-height:150px"' : '') + '>' + s + '</svg>';
+}
+
+/** Mini pregunta de comprobación (opción múltiple) */
+function buildQuiz(q, onCorrect) {
+  const box = el('div', 'quiz');
+  box.innerHTML = '<h4>Comprueba: ' + q.q + '</h4><div class="opts"></div><div role="status" aria-live="polite"></div>';
+  const opts = $('.opts', box), fb = box.lastElementChild;
+  q.o.forEach(o => {
+    const b = el('button', 'opt', o.t); b.type = 'button';
+    b.addEventListener('click', () => {
+      $$('.opt', box).forEach(x => x.classList.remove('correct', 'wrong'));
+      b.classList.add(o.ok ? 'correct' : 'wrong');
+      fb.innerHTML = msgBox(o.ok ? 'ok' : 'bad', o.ok ? '¡Bien!' : 'Casi…', o.why);
+      if (o.ok) onCorrect();
+    });
+    opts.appendChild(b);
+  });
+  return box;
+}
+
+/* ============================================================================
+   4. PESTAÑAS Y TEMA
+   ============================================================================ */
+const TABS = ['lab', 'why', 'method', 'predict', 'table'];
+function showTab(name, focus) {
+  if (!TABS.includes(name)) name = 'lab';
+  TABS.forEach(t => {
+    const b = $('#t-' + t), p = $('#p-' + t), on = t === name;
+    b.setAttribute('aria-selected', on); b.tabIndex = on ? 0 : -1; p.classList.toggle('hidden', !on);
+  });
+  if (focus) $('#t-' + name).focus();
+  if (location.hash !== '#' + name) { try { history.replaceState(null, '', '#' + name); } catch (e) { /* file:// */ } }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function initTabs() {
+  const list = $('.tabs');
+  list.addEventListener('click', e => { const b = e.target.closest('.tab'); if (b) showTab(b.dataset.tab); });
+  list.addEventListener('keydown', e => {
+    const i = TABS.indexOf(document.activeElement.dataset.tab); if (i < 0) return;
+    let j = null;
+    if (e.key === 'ArrowRight') j = (i + 1) % TABS.length; else if (e.key === 'ArrowLeft') j = (i + TABS.length - 1) % TABS.length;
+    else if (e.key === 'Home') j = 0; else if (e.key === 'End') j = TABS.length - 1;
+    if (j !== null) { e.preventDefault(); showTab(TABS[j], true); }
+  });
+  showTab((location.hash || '#lab').slice(1));
+}
+function initTheme() {
+  const root = document.documentElement, btn = $('#themeBtn');
+  const isDark = () => root.getAttribute('data-theme') ? root.getAttribute('data-theme') === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const sync = () => btn.setAttribute('aria-label', isDark() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
+  btn.addEventListener('click', () => { const t = isDark() ? 'light' : 'dark'; root.setAttribute('data-theme', t); try { localStorage.setItem('trepev-theme', t); } catch (e) {} sync(); });
+  sync();
+}
+
+/* ============================================================================
+   5. LABORATORIO
+   ============================================================================ */
+const Lab = {
+  st: { central: 'N', X: 3, E: 1, sp: SP.NH3 },
+  SWITCHES: [
+    { k: 'showLP', t: 'Pares libres', c: 'var(--lp)' },
+    { k: 'showAngles', t: 'Ángulos de enlace', c: 'var(--angle)' },
+    { k: 'showLabels', t: 'Etiquetas de átomos', c: 'var(--ligand)' },
+    { k: 'showClouds', t: 'Nubes electrónicas', c: '#7fa6ff' },
+    { k: 'showBase', t: 'Figura base (geom. electrónica)', c: '#6f7fb0' },
+    { k: 'showAtomic', t: 'Orbitales s, p, d del central', c: '#51cf66' },
+    { k: 'showOrbitals', t: 'Todos los orbitales (σ, π y pares libres)', c: '#b197fc' },
+    { k: 'showDipoles', t: 'Momentos dipolares', c: 'var(--dip)' }
+  ],
+  init() {
+    this.v = createViewer($('#labViewer'), { label: 'Molécula del laboratorio' });
+    this.v.onOpt = (k, val) => this.setOpt(k, val);
+    // Selector de átomo central
+    const cp = $('#centralPicker');
+    CENTRAL_LIST.forEach(s => {
+      const b = el('button', 'atom-btn', s); b.type = 'button'; b.setAttribute('role', 'radio'); b.dataset.s = s;
+      b.setAttribute('aria-label', 'Átomo central: ' + ELEMENTS[s].name);
+      b.addEventListener('click', () => this.pickCentral(s));
+      cp.appendChild(b);
+    });
+    cp.addEventListener('keydown', e => {
+      const btns = $$('.atom-btn', cp), i = btns.indexOf(document.activeElement); if (i < 0) return;
+      let j = null; if (e.key === 'ArrowRight' || e.key === 'ArrowDown') j = (i + 1) % btns.length; if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') j = (i + btns.length - 1) % btns.length;
+      if (j !== null) { e.preventDefault(); btns[j].focus(); btns[j].click(); }
+    });
+    // Contadores
+    $('#xPlus').addEventListener('click', e => this.change(1, 0, e.currentTarget));
+    $('#xMinus').addEventListener('click', e => this.change(-1, 0, e.currentTarget));
+    $('#ePlus').addEventListener('click', e => this.change(0, 1, e.currentTarget));
+    $('#eMinus').addEventListener('click', e => this.change(0, -1, e.currentTarget));
+    // Moléculas famosas
+    FAMOUS.forEach(id => {
+      const sp = SP[id], b = el('button', 'chip', sp.f); b.type = 'button'; b.dataset.id = id; b.setAttribute('aria-pressed', 'false');
+      b.setAttribute('aria-label', sp.f + ' (' + sp.name + ')');
+      b.addEventListener('click', () => this.loadSpecies(sp)); $('#famous').appendChild(b);
+    });
+    // Interruptores
+    const sw = $('#labSwitches');
+    this.SWITCHES.forEach(s => {
+      const l = el('label', 'switch', '<span class="sw-l"><span class="dot" style="background:' + s.c + '"></span>' + s.t + '</span><input type="checkbox" role="switch" data-k="' + s.k + '"><span class="track"></span>');
+      const inp = $('input', l); inp.checked = !!this.v.opts[s.k];
+      inp.addEventListener('change', () => this.setOpt(s.k, inp.checked));
+      sw.appendChild(l);
+    });
+    $('#btnRemoveLP').addEventListener('click', () => this.setOpt('showLP', !this.v.opts.showLP, true));
+    $('#btnBase').addEventListener('click', () => this.setOpt('showBase', !this.v.opts.showBase));
+    $('#btnAtomic').addEventListener('click', () => this.setOpt('showAtomic', !this.v.opts.showAtomic));
+    $('#btnOrb').addEventListener('click', () => this.setOpt('showOrbitals', !this.v.opts.showOrbitals));
+    this.update(true);
+  },
+  setOpt(k, val, narrate) {
+    this.v.setOption(k, val);
+    const inp = $('#labSwitches input[data-k="' + k + '"]'); if (inp) inp.checked = val;
+    const g = GEOMETRIES[this.st.X + ',' + this.st.E];
+    if (k === 'showLP') {
+      $('#btnRemoveLP').textContent = val ? 'Quitar pares libres' : 'Devolver pares libres';
+      this.v.setCaption(this.capNow());
+      if (narrate && g.E) toast(val ? 'Con los pares libres: geometría electrónica <b>' + g.elec.toLowerCase() + '</b>' : 'Solo quedan los átomos: geometría molecular <b>' + g.mol.toLowerCase() + '</b>');
+    }
+    if (k === 'showBase') {
+      const b = $('#btnBase'); b.setAttribute('aria-pressed', val); b.textContent = val ? 'Ocultar la figura base' : 'Mostrar la figura base';
+      if (val) toast('La figura tenue es la <b>' + g.elec.toLowerCase() + '</b>: la forma con los pares "invisibles"');
+    }
+    if (k === 'showOrbitals') {
+      const b = $('#btnOrb'); b.setAttribute('aria-pressed', val); b.textContent = val ? 'Ocultar los orbitales' : 'Ver todos los orbitales';
+      if (val) { if (this.v.opts.showAtomic) this.setOpt('showAtomic', false); toast('<b>σ</b>: solapamiento frontal, en el eje del enlace · <b>π</b>: solapamiento lateral, por encima y por debajo del eje'); }
+    }
+    if (k === 'showAtomic') {
+      const b = $('#btnAtomic'); b.setAttribute('aria-pressed', val); b.textContent = val ? 'Volver a la molécula' : 'Ver orbitales s, p, d';
+      if (val && this.v.opts.showOrbitals) this.setOpt('showOrbitals', false);
+      this.v.setCaption(this.capNow());
+    }
+  },
+  capNow() {
+    const g = GEOMETRIES[this.st.X + ',' + this.st.E], o = this.v.opts;
+    if (o.showAtomic) { const m = orbitalMix(g.D); return g.D < 2 ? 'Un solo dominio: no hay hibridación' : 'Orbitales atómicos del ' + this.st.central + ': se mezclan 1 s + ' + m.np + ' p' + (m.nd ? ' + ' + m.nd + ' d' : '') + ' → ' + g.D + ' híbridos ' + g.hyb; }
+    if (o.showLP === false && g.E) return 'Sin pares libres ves la geometría <b>molecular</b>: ' + g.mol;
+    return this.caption();
+  },
+  caption() { const g = GEOMETRIES[this.st.X + ',' + this.st.E], h = g.D >= 2 ? ' · ' + this.st.central + ' ' + g.hyb : ''; return (this.st.sp ? this.st.sp.f + ' · ' + g.mol : g.mol) + h; },
+  check(X, E) {
+    if (X < 1) return 'Necesitas al menos 1 par enlazante: sin enlaces no hay molécula.';
+    if (E < 0) return 'No puede haber menos de 0 pares libres.';
+    if (E > 3) return 'En Bachillerato el átomo central tiene como mucho 3 pares libres (por ejemplo XeF₂, AX₂E₃).';
+    if (X + E > 6) return 'X + E = ' + (X + E) + ' dominios: no caben. La TRePEV de Bachillerato llega hasta 6 dominios (octaedro): alrededor del átomo central no hay sitio para más pares a la distancia de enlace.';
+    if (X === 3 && E === 3) return 'AX₃E₃ (6 dominios con 3 pares libres) no aparece en moléculas estables reales, así que no se estudia.';
+    return null;
+  },
+  change(dX, dE, btn) {
+    const X = this.st.X + dX, E = this.st.E + dE, err = this.check(X, E);
+    if (err) {
+      $('#labMsg').innerHTML = msgBox('warn', 'Esa combinación no existe', err);
+      btn.classList.remove('shake'); void btn.offsetWidth; btn.classList.add('shake');
+      return;
+    }
+    // Solo se permiten combinaciones que existen en especies reales con este átomo central
+    const c = this.st.central, list = this.real(c, X, E);
+    if (!list.length) {
+      $('#labMsg').innerHTML = msgBox('warn', 'No existe con el ' + c, this.whyNot(c, X, E));
+      btn.classList.remove('shake'); void btn.offsetWidth; btn.classList.add('shake');
+      return;
+    }
+    this.loadSpecies(list[0]);
+    const o = dX ? $('#xVal') : $('#eVal'); o.classList.remove('bump'); void o.offsetWidth; o.classList.add('bump');
+    if (list.length > 1) $('#labMsg').innerHTML = msgBox('info', '', 'Con ' + notation(X, E) + ' y el ' + c + ' también existe: ' + list.slice(1).map(s => s.f).join(', ') + ' (elígela abajo).');
+  },
+  /** Especies reales del átomo central (opcionalmente con X y E concretos) */
+  real(c, X, E) { return SPECIES.filter(sp => sp.central === c && (X === undefined || (sp.X === X && sp.E === E))); },
+  whyNot(c, X, E) {
+    const e = ELEMENTS[c];
+    let t = 'No se conoce ninguna molécula o ion estable ' + notation(X, E) + ' con el ' + c + '. ';
+    if (e.period === 2 && X + E > 4) t = 'El ' + c + ' es del 2.º periodo: no puede rodearse de más de 4 pares (no puede expandir el octeto). ';
+    else if (X + 2 * E > e.val + 2) t = 'El ' + c + ' tiene ' + e.val + ' e⁻ de valencia: no le llegan para ' + X + ' ' + plural(X, 'enlace') + ' y ' + E + ' ' + plural(E, 'par libre', 'pares libres') + '. ';
+    const ok = this.real(c).map(sp => notation(sp.X, sp.E) + ' (' + sp.f + ')');
+    return t + 'Con el ' + c + ' existen: ' + [...new Set(ok)].join(', ') + '.';
+  },
+  pickCentral(s) {
+    const { X, E } = this.st, same = this.real(s, X, E), sp = same[0] || this.real(s)[0];
+    this.loadSpecies(sp);
+    if (!same.length) $('#labMsg').innerHTML = msgBox('info', '', 'El ' + s + ' no forma ninguna especie real ' + notation(X, E) + '. Se ha cargado ' + sp.f + ' (' + notation(sp.X, sp.E) + '), que sí existe.');
+  },
+  loadSpecies(sp) {
+    if (!CENTRAL_LIST.includes(sp.central)) { toast(sp.f + ' tiene un átomo central (' + sp.central + ') que no está en el Laboratorio'); return; }
+    this.st = { central: sp.central, X: sp.X, E: sp.E, sp };
+    if (!this.v.opts.showLP) this.setOpt('showLP', true);
+    this.update();
+  },
+  chemNotes() {
+    const { central, X, E } = this.st, e = ELEMENTS[central], n = [];
+    if (e.period === 2 && X + E > 4) n.push('El ' + central + ' es del 2.º periodo: no puede rodearse de más de 4 pares (no puede expandir el octeto). Esta combinación es imposible para él; prueba con P, S, Cl, Br o Xe.');
+    if (X + 2 * E > e.val) n.push('Con ' + e.val + ' e⁻ de valencia, el ' + central + ' no llega para ' + X + ' ' + plural(X, 'enlace') + ' y ' + E + ' ' + plural(E, 'par libre', 'pares libres') + ' (necesitaría ' + (X + 2 * E) + '). Solo sería posible en un ion negativo.');
+    return n;
+  },
+  update(instant) {
+    const { central, X, E, sp } = this.st, g = GEOMETRIES[X + ',' + E];
+    $('#xVal').textContent = X; $('#eVal').textContent = E;
+    $$('#centralPicker .atom-btn').forEach(b => { const on = b.dataset.s === central; b.setAttribute('aria-checked', on); b.tabIndex = on ? 0 : -1; });
+    $$('#famous .chip').forEach(b => b.setAttribute('aria-pressed', !!sp && b.dataset.id === sp.id));
+    $('#labMsg').innerHTML = '';
+    $('#realLbl').textContent = 'Especies reales con el ' + central + ' (' + ELEMENTS[central].name + ')';
+    $('#realList').innerHTML = '';
+    this.real(central).forEach(s => {
+      const b = el('button', 'chip', s.f + ' <span class="muted small">' + notation(s.X, s.E) + '</span>'); b.type = 'button';
+      b.setAttribute('aria-pressed', !!sp && sp.id === s.id); b.setAttribute('aria-label', s.f + ', ' + s.name);
+      b.addEventListener('click', () => this.loadSpecies(s)); $('#realList').appendChild(b);
+    });
+    this.v.setMolecule(sp ? speciesSpec(sp) : buildSpec(X, E, central), { instant });
+    this.v.setCaption(this.capNow());
+    $('#btnRemoveLP').disabled = !E;
+    this.renderResults(g, sp);
+  },
+  renderResults(g, sp) {
+    const pol = polarityInfo(g, sp), r = $('#labResults');
+    const realA = sp && sp.angle ? sp.angle : g.angleReal;
+    r.innerHTML =
+      '<span class="label">Notación TRePEV' + (sp ? ' · ' + sp.f : '') + '</span>' +
+      '<div class="notation">' + notation(g.X, g.E, true) + '</div>' +
+      '<div class="muted small">' + g.X + ' ' + plural(g.X, 'enlazante') + ' + ' + g.E + ' ' + plural(g.E, 'libre') + ' = <b style="color:var(--text)">' + g.D + ' ' + plural(g.D, 'dominio') + ' electrónicos</b></div>' +
+      '<div class="geo-pair"><div class="geo-box"><small>Geometría electrónica</small><b>' + g.elec + '</b></div><div class="geo-box mol"><small>Geometría molecular</small><b>' + g.mol + '</b></div></div>' +
+      '<dl class="kv">' +
+      '<dt>Ángulo ideal</dt><dd>' + g.angleIdeal + '<span class="sub">el de la figura base perfecta</span></dd>' +
+      '<dt>Ángulo real</dt><dd>' + realA + '</dd>' +
+      '<dt>Hibridación</dt><dd>' + g.hyb + (g.D >= 5 ? ' <span class="badge amp">Ampliación</span>' : '') + (g.D >= 2 ? orbBoxes(g.D, true) + '<span class="sub">1 s + ' + orbitalMix(g.D).np + ' p' + (orbitalMix(g.D).nd ? ' + ' + orbitalMix(g.D).nd + ' d' : '') + ' → ' + g.D + ' híbridos' + (orbitalMix(g.D).free ? '; quedan ' + orbitalMix(g.D).free + ' p sin hibridar' : '') + '</span>' : '') + '</dd>' +
+      '<dt>Enlaces</dt><dd>' + (sp ? bondCounts(sp).s + ' σ' + (bondCounts(sp).p ? ' + ' + bondCounts(sp).p + ' π' : '') + '<span class="sub">' + sigmaPiText(sp, g.D) + '</span>' : g.X + ' σ<span class="sub">Suponiendo enlaces sencillos: todos σ (solapamiento frontal). Un doble enlace sería 1 σ + 1 π (lateral).</span>') + '</dd>' +
+      '<dt>Polaridad</dt><dd><span class="badge ' + pol.cls + '">' + pol.label + '</span><span class="sub">' + pol.why + '</span></dd>' +
+      '<dt>Ejemplos</dt><dd>' + g.examples + '</dd>' +
+      '</dl>' +
+      (sp && sp.note ? msgBox('info', 'Nota', sp.note) : '') +
+      '<details><summary>Ver más: ¿por qué esta forma?</summary><p class="small">' + whyGeometry(g) + '</p>' +
+      (sp ? '<div class="svgbox">' + lewisSVG(sp, true) + '</div><p class="small muted">Estructura de Lewis de ' + sp.f + '. Los pares en <span style="color:var(--lp-ink);font-weight:800">ámbar</span> son los del átomo central (los que cuentan).</p>' : '') +
+      '</details>';
+    $$('.geo-box', r).forEach(b => b.classList.add('flash'));
+  }
+};
+
+/* ============================================================================
+   6. ENTIENDE EL PORQUÉ (7 pasos interactivos)
+   ============================================================================ */
+const Why = {
+  cur: 0, passed: new Set(), timers: [],
+  init() {
+    this.v = createViewer($('#whyViewer'), { label: 'Animación de la teoría' });
+    const nav = $('#whySteps');
+    this.STEPS.forEach((s, i) => {
+      const b = el('button', 'step-pill', '<span class="num">' + (i + 1) + '</span>' + s.short); b.type = 'button';
+      b.addEventListener('click', () => this.go(i)); nav.appendChild(b);
+    });
+    this.go(0);
+  },
+  clear() { this.timers.forEach(t => { clearInterval(t); clearTimeout(t); }); this.timers = []; if (this.raf) cancelAnimationFrame(this.raf); },
+  go(i) {
+    this.clear(); this.cur = i;
+    $$('#whySteps .step-pill').forEach((b, j) => { b.toggleAttribute('aria-current', false); if (j === i) b.setAttribute('aria-current', 'step'); b.classList.toggle('done', this.passed.has(j)); });
+    const v = this.v;
+    Object.assign(v.opts, { showLP: true, showAngles: true, showLabels: true, showClouds: false, showBase: false, showTags: false, showDipoles: false, showOrbitals: false, showAtomic: false });
+    v.setSplit(false); v.setCaption(''); if (v.onSettle !== undefined) v.onSettle = null; v.physPaused = false;
+    const s = this.STEPS[i], text = $('#whyText'), bar = $('#whyBar');
+    text.innerHTML = '<span class="label">Idea ' + (i + 1) + ' de ' + this.STEPS.length + '</span><h2>' + s.title + '</h2>';
+    bar.innerHTML = '';
+    s.render.call(this, text, bar, v);
+    text.appendChild(buildQuiz(s.q, () => { this.passed.add(i); $('#whyNext').disabled = false; $$('#whySteps .step-pill')[i].classList.add('done'); }));
+    const nav = el('div', 'row'); nav.style.marginTop = '14px';
+    nav.innerHTML = '<button class="btn" type="button" id="whyPrev"' + (i === 0 ? ' disabled' : '') + '>← Anterior</button>' +
+      '<button class="btn primary" type="button" id="whyNext"' + (this.passed.has(i) ? '' : ' disabled') + '>' + (i === this.STEPS.length - 1 ? 'Terminar ✓' : 'Siguiente →') + '</button>' +
+      '<span class="small muted">' + (this.passed.has(i) ? '' : 'Responde la pregunta para avanzar') + '</span>';
+    text.appendChild(nav);
+    $('#whyPrev').addEventListener('click', () => this.go(i - 1));
+    $('#whyNext').addEventListener('click', () => {
+      if (i < this.STEPS.length - 1) this.go(i + 1);
+      else toast('¡Teoría completada! Ahora prueba “Predice antes de mirar”.');
+    });
+  },
+  /** Botones de pausa/repetición para animaciones de secuencia */
+  seqControls(bar, play, labels) {
+    const p = el('button', 'btn sm', '⏸ Pausa'), r = el('button', 'btn sm', '↺ Repetir'); p.type = r.type = 'button';
+    let running = true;
+    p.addEventListener('click', () => { running = !running; p.textContent = running ? '⏸ Pausa' : '▶ Seguir'; play(running ? 'resume' : 'pause'); });
+    r.addEventListener('click', () => { running = true; p.textContent = '⏸ Pausa'; play('restart'); });
+    bar.append(p, r);
+    return { setRunning(b) { running = b; p.textContent = b ? '⏸ Pausa' : '▶ Seguir'; } };
+  },
+  tweenNumber(elx, from, to, dec) {
+    const t0 = performance.now(), D = 900;
+    const step = now => { const k = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - k, 3), val = from + (to - from) * e; elx.textContent = val.toFixed(dec).replace('.', ',') + '°'; if (k < 1) this.raf = requestAnimationFrame(step); };
+    this.raf = requestAnimationFrame(step);
+  },
+
+  STEPS: [
+    /* 1 ----------------------------------------------------------------- */
+    {
+      short: 'Se repelen', title: 'Los pares de electrones se repelen',
+      render(text, bar, v) {
+        text.insertAdjacentHTML('beforeend',
+          '<p class="lead">Todos los pares de electrones tienen carga negativa: <b>se repelen</b> y se colocan lo más lejos posible unos de otros alrededor del átomo central.</p>' +
+          '<p>Como globos atados al mismo punto: cada uno empuja a los demás. Añade o quita globos y mira dónde se quedan.</p>' +
+          '<div class="row" style="margin:10px 0"><button class="round" type="button" id="bMinus" aria-label="Quitar un globo">−</button><output id="bN" style="font-size:2rem;font-weight:800;min-width:40px;text-align:center">4</output><button class="round" type="button" id="bPlus" aria-label="Añadir un globo">+</button><span class="muted small">globos (2 a 6)</span></div>' +
+          '<div id="bRes" class="msg info" role="status" aria-live="polite">Colocándose…</div>' +
+          '<p class="small muted">Con 4 no forman un cuadrado plano (90°): en 3D se separan más, hasta 109,5°.</p>');
+        const NAMES = { 2: ['Lineal', '180°'], 3: ['Trigonal plana', '120°'], 4: ['Tetraédrica', '109,5°'], 5: ['Bipirámide trigonal', '90° y 120°'], 6: ['Octaédrica', '90°'] };
+        let n = 4;
+        const res = $('#bRes', text);
+        const set = sc => { $('#bN', text).textContent = n; res.innerHTML = 'Colocándose…'; v.opts.showBase = false; v.setBalloons(n, sc); };
+        v.onSettle = k => { res.innerHTML = '<b>' + k + ' globos → ' + NAMES[k][0] + '</b> · ángulo ' + NAMES[k][1]; if (v.polyFromCurrent) { v.polyFromCurrent(); v.opts.showBase = true; } };
+        $('#bPlus', text).addEventListener('click', () => { if (n < 6) { n++; set(false); } else toast('Máximo 6 (octaedro)'); });
+        $('#bMinus', text).addEventListener('click', () => { if (n > 2) { n--; set(false); } else toast('Mínimo 2'); });
+        const sc = el('button', 'btn sm soft', '💨 Soltar otra vez'); sc.type = 'button';
+        sc.addEventListener('click', () => set(true));
+        const pz = el('button', 'btn sm', '⏸ Pausa'); pz.type = 'button';
+        pz.addEventListener('click', () => { v.physPaused = !v.physPaused; pz.textContent = v.physPaused ? '▶ Seguir' : '⏸ Pausa'; });
+        bar.append(sc, pz);
+        set(true);
+      },
+      q: { q: 'Si el átomo central tiene 4 pares de electrones, ¿cómo se colocan?', o: [
+        { t: 'En un cuadrado plano (90°)', ok: false, why: 'En un plano solo podrían separarse 90°. En 3D pueden alejarse más: 109,5° (tetraedro).' },
+        { t: 'En los vértices de un tetraedro (109,5°)', ok: true, why: 'Exacto: el tetraedro es la forma de alejar al máximo 4 pares en el espacio.' },
+        { t: 'Todos hacia el mismo lado', ok: false, why: 'Al contrario: se repelen y se separan lo más posible.' }] }
+    },
+    /* 2 ----------------------------------------------------------------- */
+    {
+      short: 'Pares libres', title: 'Los pares libres ocupan más espacio',
+      render(text, bar, v) {
+        text.insertAdjacentHTML('beforeend',
+          '<p class="lead">Un <b>par enlazante</b> está atraído por <b>dos núcleos</b>: queda estirado y estrecho entre ellos. Un <b>par libre</b> solo está atraído por <b>un núcleo</b>: se ensancha y ocupa más volumen cerca del átomo central.</p>' +
+          '<div class="svgbox" id="lpSvg">' +
+          '<svg viewBox="0 0 360 170" role="img" aria-label="Comparación: par enlazante estrecho entre dos núcleos y par libre ancho junto a un núcleo">' +
+          '<ellipse class="bp-breath" cx="95" cy="70" rx="56" ry="15" style="fill:#7fa6ff;opacity:.55"/>' +
+          '<circle cx="40" cy="70" r="15" style="fill:var(--central)"/><circle cx="150" cy="70" r="11" style="fill:var(--ligand)"/>' +
+          '<circle cx="88" cy="70" r="3.4" style="fill:var(--text)"/><circle cx="102" cy="70" r="3.4" style="fill:var(--text)"/>' +
+          '<ellipse class="lp-breath" cx="282" cy="70" rx="44" ry="36" style="fill:var(--lp);opacity:.6"/>' +
+          '<circle cx="228" cy="70" r="15" style="fill:var(--central)"/>' +
+          '<circle cx="290" cy="63" r="3.4" style="fill:var(--lp-ink)"/><circle cx="290" cy="77" r="3.4" style="fill:var(--lp-ink)"/>' +
+          '<text x="95" y="122" text-anchor="middle" style="fill:var(--text);font-weight:800;font-size:14px">Par enlazante</text>' +
+          '<text x="95" y="142" text-anchor="middle" style="fill:var(--muted);font-size:12px">2 núcleos → estrecho</text>' +
+          '<text x="262" y="132" text-anchor="middle" style="fill:var(--text);font-weight:800;font-size:14px">Par libre</text>' +
+          '<text x="262" y="152" text-anchor="middle" style="fill:var(--muted);font-size:12px">1 núcleo → ancho</text>' +
+          '</svg></div>' +
+          '<p>Por eso un par libre <b>empuja más</b> a los demás pares. En el 3D (NH₃ con nubes) el lóbulo amarillo es más ancho que las nubes de enlace.</p>');
+        const box = $('#lpSvg', text);
+        const p = el('button', 'btn sm', '⏸ Pausa'), r = el('button', 'btn sm', '↺ Repetir'); p.type = r.type = 'button';
+        p.addEventListener('click', () => { const on = box.classList.toggle('paused'); p.textContent = on ? '▶ Seguir' : '⏸ Pausa'; });
+        r.addEventListener('click', () => { box.classList.remove('paused'); p.textContent = '⏸ Pausa'; const s = box.innerHTML; box.innerHTML = ''; void box.offsetWidth; box.innerHTML = s; v.setMolecule(speciesSpec(SP.CH4)); this.timers.push(setTimeout(() => v.setMolecule(speciesSpec(SP.NH3)), 700)); });
+        bar.append(p, r);
+        v.opts.showClouds = true; v.opts.showAngles = false;
+        v.setMolecule(speciesSpec(SP.NH3)); v.setCaption('NH₃ · par libre (amarillo) vs. nubes de enlace (azul)');
+      },
+      q: { q: '¿Por qué un par libre ocupa más espacio que un par enlazante?', o: [
+        { t: 'Porque tiene más electrones', ok: false, why: 'No: los dos tienen 2 electrones. La diferencia está en cuántos núcleos los atraen.' },
+        { t: 'Porque solo lo atrae un núcleo y se expande', ok: true, why: 'Eso es: al estar atraído por un único núcleo, su nube se ensancha y repele más.' },
+        { t: 'Porque está más lejos del átomo central', ok: false, why: 'Al revés: el par libre está más cerca del núcleo central y más “gordo”.' }] }
+    },
+    /* 3 ----------------------------------------------------------------- */
+    {
+      short: 'Orden de repulsión', title: 'PL–PL > PL–PE > PE–PE',
+      render(text, bar, v) {
+        text.insertAdjacentHTML('beforeend',
+          '<p class="lead">Como los pares libres (PL) ocupan más, repelen más que los pares enlazantes (PE):</p>' +
+          '<div class="rep-bars"><div class="rep-bar"><span>PL – PL</span><span class="b" style="width:100%"></span></div><div class="rep-bar"><span>PL – PE</span><span class="b" style="width:72%"></span></div><div class="rep-bar"><span>PE – PE</span><span class="b" style="width:45%"></span></div></div>' +
+          '<p>Resultado: <b>cada par libre cierra el ángulo</b> entre los enlaces. Mira los tres casos con 4 dominios:</p>' +
+          '<div class="row" id="seqBtns"></div>' +
+          '<div style="margin:12px 0"><div class="bigread" id="bigA">109,5°</div><div class="muted" id="bigInfo">CH₄ · 0 pares libres</div></div>' +
+          '<table class="table-mini"><thead><tr><th>Molécula</th><th>Pares libres</th><th>Ángulo H–X–H</th></tr></thead><tbody><tr><td>CH₄</td><td>0</td><td>109,5°</td></tr><tr><td>NH₃</td><td>1</td><td>≈107°</td></tr><tr><td>H₂O</td><td>2</td><td>≈104,5°</td></tr></tbody></table>');
+        const SEQ = [{ id: 'CH4', a: 109.5, i: 'CH₄ · 0 pares libres · tetraédrica' }, { id: 'NH3', a: 107, i: 'NH₃ · 1 par libre · pirámide trigonal' }, { id: 'H2O', a: 104.5, i: 'H₂O · 2 pares libres · angular' }];
+        let k = 0, cur = 109.5;
+        const show = j => { k = j; const s = SEQ[j]; v.setMolecule(speciesSpec(SP[s.id])); v.setCaption(SP[s.id].f); this.tweenNumber($('#bigA', text), cur, s.a, 1); cur = s.a; $('#bigInfo', text).textContent = s.i; $$('#seqBtns .chip', text).forEach((b, x) => b.setAttribute('aria-pressed', x === j)); };
+        SEQ.forEach((s, j) => { const b = el('button', 'chip', SP[s.id].f); b.type = 'button'; b.addEventListener('click', () => { stop(); ctl.setRunning(false); show(j); }); $('#seqBtns', text).appendChild(b); });
+        let timer = null;
+        const stop = () => { clearInterval(timer); timer = null; };
+        const start = () => { stop(); timer = setInterval(() => { if (k < SEQ.length - 1) show(k + 1); else { stop(); ctl.setRunning(false); } }, 2600); this.timers.push(timer); };
+        const ctl = this.seqControls(bar, a => { if (a === 'pause') stop(); if (a === 'resume') { if (k >= SEQ.length - 1) show(0); start(); } if (a === 'restart') { show(0); start(); } });
+        show(0); start();
+      },
+      q: { q: 'El NH₃ tiene 1 par libre y el H₂O tiene 2. ¿Cuál tiene el ángulo de enlace más pequeño?', o: [
+        { t: 'NH₃', ok: false, why: 'El H₂O tiene 2 pares libres, que empujan más: su ángulo (≈104,5°) es menor que el del NH₃ (≈107°).' },
+        { t: 'H₂O', ok: true, why: 'Correcto: con 2 pares libres la repulsión PL–PL cierra más el ángulo, ≈104,5°.' },
+        { t: 'Los dos tienen 109,5°', ok: false, why: '109,5° es el ideal del tetraedro. Los pares libres comprimen el ángulo real.' }] }
+    },
+    /* 5 ----------------------------------------------------------------- */
+    {
+      short: 'Dobles enlaces', title: 'Un enlace doble o triple cuenta como UN dominio',
+      render(text, bar, v) {
+        text.insertAdjacentHTML('beforeend',
+          '<p class="lead">Los 2 (o 3) pares de un enlace múltiple apuntan hacia <b>el mismo átomo</b>, en la misma dirección. Por eso se agrupan y cuentan como <b>un solo dominio</b>.</p>' +
+          '<div class="row" id="dbBtns"></div><div class="row" style="margin-top:8px"><button class="btn sm" type="button" id="dbSplit">Separar pares (contar mal)</button><button class="btn sm soft" type="button" id="dbGroup">Agrupar en dominios (bien)</button><button class="btn sm" type="button" id="dbOrb" aria-pressed="false">Ver σ y π</button></div>' +
+          '<p class="small">Un doble enlace = <b>1 σ</b> (solapamiento <b>frontal</b>, en el eje) + <b>1 π</b> (solapamiento <b>lateral</b>, por encima y por debajo). Un triple = 1 σ + 2 π. Solo el σ marca la dirección: por eso todo el enlace cuenta como 1 dominio.</p>' +
+          '<div id="dbRes" style="margin-top:12px" role="status" aria-live="polite"></div>');
+        const DATA = {
+          CO2: { bad: '4 “nubes” contadas por separado → parecería tetraédrica (109,5°). <b>¡Error!</b>', good: '2 dominios (dos C=O) → <b>lineal, 180°</b>. Correcto.' },
+          SO2: { bad: '4 nubes de enlace + 1 par libre = 5 → bipirámide. <b>¡Error!</b>', good: '2 dominios de enlace + 1 par libre = 3 → trigonal plana → molécula <b>angular (≈119°)</b>.' }
+        };
+        let mol = 'CO2', split = false;
+        const render = () => {
+          v.setSplit(split);
+          $('#dbRes', text).innerHTML = split ? msgBox('bad', 'Contando cada par por separado', DATA[mol].bad) : msgBox('ok', 'Agrupando cada enlace múltiple', DATA[mol].good);
+          $$('#dbBtns .chip', text).forEach(b => b.setAttribute('aria-pressed', b.dataset.id === mol));
+        };
+        ['CO2', 'SO2'].forEach(id => { const b = el('button', 'chip', SP[id].f); b.type = 'button'; b.dataset.id = id; b.addEventListener('click', () => { mol = id; v.setMolecule(speciesSpec(SP[id])); v.setCaption(SP[id].f); render(); }); $('#dbBtns', text).appendChild(b); });
+        $('#dbSplit', text).addEventListener('click', () => { stop(); ctl.setRunning(false); split = true; render(); });
+        $('#dbGroup', text).addEventListener('click', () => { stop(); ctl.setRunning(false); split = false; render(); });
+        $('#dbOrb', text).addEventListener('click', e => {
+          const on = !v.opts.showOrbitals; stop(); ctl.setRunning(false); split = false; render();
+          v.setOption('showOrbitals', on); v.opts.showClouds = !on; e.currentTarget.setAttribute('aria-pressed', on); e.currentTarget.textContent = on ? 'Ocultar σ y π' : 'Ver σ y π';
+        });
+        v.opts.showClouds = true;
+        v.setMolecule(speciesSpec(SP.CO2)); v.setCaption('CO₂');
+        let timer = null; const stop = () => { clearInterval(timer); timer = null; };
+        const start = () => { stop(); timer = setInterval(() => { split = !split; render(); }, 2600); this.timers.push(timer); };
+        const ctl = this.seqControls(bar, a => { if (a === 'pause') stop(); if (a === 'resume') start(); if (a === 'restart') { split = true; render(); start(); } });
+        split = true; render(); start();
+      },
+      q: { q: '¿Cuántos dominios electrónicos tiene el C en el CO₂ (O=C=O)?', o: [
+        { t: '2', ok: true, why: 'Correcto: dos enlaces dobles = 2 dominios → lineal, 180°, sp.' },
+        { t: '4', ok: false, why: 'Has contado cada doble enlace como 2. Cada enlace múltiple es UN dominio.' },
+        { t: '6', ok: false, why: 'No se cuentan los pares libres de los O (ligandos), ni cada par del doble enlace por separado.' }] }
+    },
+    /* 6 ----------------------------------------------------------------- */
+    {
+      short: 'Hibridación', title: 'Orbitales s, p, d ⇒ híbridos',
+      render(text, bar, v) {
+        text.insertAdjacentHTML('beforeend',
+          '<p class="lead">El átomo central tiene orbitales <b>atómicos</b>: <b>s</b> (una esfera) y <b>p</b> (dos lóbulos a lo largo de x, y, z). Con 5 o 6 dominios entran también orbitales <b>d</b>. Se “mezclan” tantos como <b>dominios</b> hay y salen orbitales <b>híbridos</b> iguales, orientados como la geometría electrónica.</p>' +
+          '<div class="row" id="hyBtns"></div>' +
+          '<div class="seg" role="group" aria-label="Qué orbitales ver" style="margin-top:10px"><button type="button" id="hyAt" aria-pressed="true">1 · Orbitales s, p, d</button><button type="button" id="hyHy" aria-pressed="false">2 · Mezclados: híbridos</button></div>' +
+          '<div id="hyInfo" style="margin-top:10px" role="status" aria-live="polite"></div>' +
+          '<p class="small muted">Rojo y azul son las dos fases (signos) de cada orbital p. Los orbitales tenues no se mezclan: quedan <b>sin hibridar</b> y pueden formar enlaces <b>π</b> (laterales). Los híbridos forman los enlaces <b>σ</b> (frontales) o alojan pares libres.</p>' +
+          '<p class="small muted">Ojo: cuenta los pares libres. El NH₃ (3 enlaces + 1 par libre) es <b>sp³</b>, no sp².</p>');
+        const INFO = { 2: ['sp', 'Lineal · 180°', 'BeCl₂, CO₂, HCN'], 3: ['sp²', 'Trigonal plana · 120°', 'BF₃, SO₂, CO₃²⁻'], 4: ['sp³', 'Tetraédrica · 109,5°', 'CH₄, NH₃, H₂O'], 5: ['sp³d', 'Bipirámide trigonal · 90°/120°', 'PCl₅, SF₄, ClF₃'], 6: ['sp³d²', 'Octaédrica · 90°', 'SF₆, BrF₅, XeF₄'] };
+        let D = 4, atomic = true;
+        const show = () => {
+          const [h, geo, ex] = INFO[D], g = GEOMETRIES[D + ',0'], m = orbitalMix(D);
+          v.setMolecule({ central: 'A', domains: g.ideal.map(d => ({ type: 'H', dir: d })), arcs: g.arcs.map(a => ({ a: a.a, b: a.b, real: a.real })) });
+          v.setOption('showAtomic', atomic);
+          v.setCaption(atomic ? 'Orbitales atómicos: 1 s + 3 p' + (D >= 5 ? ' + d' : '') : D + ' orbitales híbridos ' + h);
+          $('#hyAt', text).setAttribute('aria-pressed', atomic); $('#hyHy', text).setAttribute('aria-pressed', !atomic);
+          $('#hyInfo', text).innerHTML =
+            '<div class="row"><span style="font-size:2rem;font-weight:850">' + h + '</span>' + (D >= 5 ? '<span class="badge amp">Ampliación</span>' : '<span class="badge ess">2.º Bachillerato</span>') + '</div>' + orbBoxes(D) +
+            '<p>1 s + ' + m.np + ' p' + (m.nd ? ' + ' + m.nd + ' d' : '') + ' → <b>' + D + ' híbridos ' + h + '</b>' + (m.free ? ' · quedan ' + m.free + ' p sin hibridar' : '') + '. Geometría electrónica: ' + geo + '. Ejemplos: ' + ex + '.</p>';
+          $$('#hyBtns .chip', text).forEach(b => b.setAttribute('aria-pressed', +b.dataset.d === D));
+        };
+        [2, 3, 4, 5, 6].forEach(n => { const b = el('button', 'chip', n + ' dominios'); b.type = 'button'; b.dataset.d = n; b.addEventListener('click', () => { D = n; show(); }); $('#hyBtns', text).appendChild(b); });
+        $('#hyAt', text).addEventListener('click', () => { stop(); ctl.setRunning(false); atomic = true; show(); });
+        $('#hyHy', text).addEventListener('click', () => { stop(); ctl.setRunning(false); atomic = false; show(); });
+        let timer = null; const stop = () => { clearInterval(timer); timer = null; };
+        const start = () => { stop(); timer = setInterval(() => { atomic = !atomic; show(); }, 3200); this.timers.push(timer); };
+        const ctl = this.seqControls(bar, a => { if (a === 'pause') stop(); if (a === 'resume') start(); if (a === 'restart') { atomic = true; show(); start(); } });
+        show(); start();
+      },
+      q: { q: 'Un átomo central con 2 enlaces y 1 par libre (SO₂), ¿qué hibridación tiene?', o: [
+        { t: 'sp', ok: false, why: 'Has contado solo los enlaces. Con el par libre son 3 dominios → sp².' },
+        { t: 'sp²', ok: true, why: 'Bien: 2 + 1 = 3 dominios → sp².' },
+        { t: 'sp³', ok: false, why: 'sp³ corresponde a 4 dominios. Aquí hay 3 (¡los dobles enlaces cuentan 1!).' }] }
+    },
+    /* 7 ----------------------------------------------------------------- */
+    {
+      short: 'Polaridad', title: 'Enlaces polares + geometría = ¿molécula polar?',
+      render(text, bar, v) {
+        text.insertAdjacentHTML('beforeend',
+          '<p class="lead">Cada enlace polar tiene un <b>momento dipolar</b> (flecha verde, apunta hacia el átomo más electronegativo). La molécula es polar si la <b>suma</b> de flechas no es cero (flecha morada).</p>' +
+          '<div class="row" id="poBtns"></div><div id="poRes" style="margin-top:10px" role="status" aria-live="polite"></div>' +
+          '<p class="small muted">Regla rápida: geometría simétrica + ligandos iguales + sin pares libres que la deformen → apolar.</p>');
+        const show = id => {
+          const sp = SP[id]; v.setMolecule(speciesSpec(sp)); v.setCaption(sp.f + ' · ' + geoOf(sp).mol);
+          $('#poRes', text).innerHTML = msgBox(sp.polar ? 'warn' : 'ok', sp.f + ': ' + (sp.polar ? 'POLAR (μ ≠ 0)' : 'APOLAR (μ = 0)'), sp.polarWhy);
+          $$('#poBtns .chip', text).forEach(b => b.setAttribute('aria-pressed', b.dataset.id === id));
+        };
+        ['CO2', 'H2O', 'BF3', 'NH3', 'CCl4', 'CHCl3'].forEach(id => { const b = el('button', 'chip', SP[id].f); b.type = 'button'; b.dataset.id = id; b.addEventListener('click', () => show(id)); $('#poBtns', text).appendChild(b); });
+        v.opts.showDipoles = true; v.opts.showAngles = false;
+        show('CO2');
+      },
+      q: { q: '¿Por qué el CO₂ es apolar si sus enlaces C=O son polares?', o: [
+        { t: 'Porque es lineal y los dos dipolos se anulan', ok: true, why: 'Exacto: dos dipolos iguales y opuestos (180°) suman cero.' },
+        { t: 'Porque C y O tienen la misma electronegatividad', ok: false, why: 'No: el O es bastante más electronegativo (3,44 frente a 2,55). Los enlaces SÍ son polares.' },
+        { t: 'Porque el C no tiene pares libres', ok: false, why: 'No basta: el CHCl₃ tampoco tiene pares libres en el C y es polar. Lo que importa es la simetría.' }] }
+    }
+  ]
+};
+
+/* ============================================================================
+   7. MÉTODO PASO A PASO
+   ============================================================================ */
+function normFormula(s) {
+  const map = { '₀': '0', '₁': '1', '₂': '2', '₃': '3', '₄': '4', '₅': '5', '₆': '6', '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4', '⁺': '+', '⁻': '-', '−': '-', '–': '-' };
+  return s.replace(/[₀-₆⁰¹²³⁴⁺⁻−–]/g, c => map[c] || c).replace(/[\s\[\]\(\)\^]/g, '').toLowerCase();
+}
+function formulaKeys(sp) {
+  const base = [normFormula(sp.f).replace(/[+-]/g, '').replace(/\d+$/, m => sp.charge && Math.abs(sp.charge) > 1 ? m.slice(0, -1) : m)];
+  // Base sin carga: quitamos el superíndice de la carga si estaba pegado
+  const plain = normFormula(sp.f).replace(/[+-]+$/, '');
+  const b0 = Math.abs(sp.charge) > 1 ? plain.slice(0, -1) : plain;
+  const bases = [b0].concat((sp.alias || []).map(a => normFormula(a).replace(/[+-]+$/, '')));
+  const keys = [];
+  bases.forEach(b => {
+    if (!sp.charge) keys.push(b);
+    else {
+      const a = Math.abs(sp.charge), sg = sp.charge > 0 ? '+' : '-';
+      keys.push(b + a + sg, b + sg + a, b + sg.repeat(a)); if (a === 1) keys.push(b + sg);
+    }
+  });
+  return keys.concat(base);
+}
+function findSpecies(str) {
+  const n = normFormula(str); if (!n) return null;
+  return SPECIES.find(sp => formulaKeys(sp).includes(n)) || null;
+}
+
+const Method = {
+  sp: null, mode: 'try', done: new Set(),
+  init() {
+    this.v = createViewer($('#methodViewer'), { label: 'Modelo 3D del método' });
+    $('#mCount').textContent = SPECIES.length;
+    SPECIES.forEach(sp => { const b = el('button', 'chip', sp.f); b.type = 'button'; b.title = sp.name; b.addEventListener('click', () => { $('#mFormula').value = sp.f; this.start(sp); }); $('#mChips').appendChild(b); });
+    const go = () => {
+      const sp = findSpecies($('#mFormula').value);
+      if (!sp) { $('#mFormulaMsg').innerHTML = msgBox('warn', 'No la encuentro', 'Escribe una de la lista (por ejemplo <b>NH3</b>, <b>SO2</b>, <b>CO3 2-</b>, <b>NH4+</b>) o despliega “elige de la lista”.'); return; }
+      this.start(sp);
+    };
+    $('#mGo').addEventListener('click', go);
+    $('#mFormula').addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+    const setMode = m => { this.mode = m; $('#mModeTry').setAttribute('aria-pressed', m === 'try'); $('#mModeShow').setAttribute('aria-pressed', m === 'show'); if (this.sp) this.start(this.sp); };
+    $('#mModeTry').addEventListener('click', () => setMode('try'));
+    $('#mModeShow').addEventListener('click', () => setMode('show'));
+    $('#mFormula').value = 'NH₃';
+    this.start(SP.NH3);
+  },
+  start(sp) {
+    this.sp = sp; this.done = new Set(); this.shown = {};
+    $('#mFormulaMsg').innerHTML = '';
+    $$('#mChips .chip').forEach(b => b.setAttribute('aria-pressed', b.textContent === sp.f));
+    if (this.mode === 'show') [1, 2, 3, 4, 5].forEach(k => { this.done.add(k); this.shown[k] = true; });
+    this.render();
+  },
+  complete(k, shown) { this.done.add(k); if (shown) this.shown[k] = true; this.render(); const nxt = $('#mstep' + (k + 1)); if (nxt) nxt.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); },
+  render() {
+    const sp = this.sp, g = geoOf(sp), box = $('#mSteps'); box.innerHTML = '';
+    const unlocked = k => k === 1 || this.done.has(k - 1);
+    const card = (k, title, body) => {
+      const c = el('div', 'mstep' + (this.done.has(k) ? ' done' : '') + (unlocked(k) ? '' : ' locked'));
+      c.id = 'mstep' + k; c.innerHTML = '<h3><span class="num">' + (this.done.has(k) ? '✓' : k) + '</span>' + title + '</h3>';
+      if (unlocked(k)) c.appendChild(body); else c.insertAdjacentHTML('beforeend', '<p class="muted small">Completa el paso anterior.</p>');
+      box.appendChild(c);
+    };
+    const actions = (onCheck, onShow) => {
+      const r = el('div', 'row'); r.style.marginTop = '10px';
+      if (onCheck) { const c = el('button', 'btn primary sm', 'Comprobar'); c.type = 'button'; c.addEventListener('click', onCheck); r.appendChild(c); }
+      const s = el('button', 'btn sm', 'Mostrar solución'); s.type = 'button'; s.addEventListener('click', onShow); r.appendChild(s);
+      return r;
+    };
+    // ---- Paso 1: electrones de valencia
+    {
+      const b = el('div'); const tot = valenceTotal(sp), noQ = tot + sp.charge;
+      const tbl = '<table class="table-mini"><tbody>' + valenceParts(sp).map(p => '<tr><td>' + p.n + ' × ' + p.s + '</td><td>' + p.v + ' e⁻ cada uno</td><td>' + (p.n * p.v) + '</td></tr>').join('') +
+        (sp.charge ? '<tr><td>Carga ' + chargeStr(sp.charge) + '</td><td>' + (sp.charge < 0 ? 'gana' : 'pierde') + ' ' + Math.abs(sp.charge) + ' e⁻</td><td>' + (sp.charge < 0 ? '+' : '−') + Math.abs(sp.charge) + '</td></tr>' : '') +
+        '</tbody><tfoot><tr><td colspan="2">Total</td><td>' + tot + ' e⁻ (' + tot / 2 + ' pares)</td></tr></tfoot></table>';
+      if (this.done.has(1)) b.innerHTML = tbl;
+      else {
+        b.innerHTML = '<p>Suma los electrones de valencia de todos los átomos de <b>' + sp.f + '</b>' + (sp.charge ? ' y ten en cuenta la carga' : '') + '.</p><div class="row"><label for="m1" class="small"><b>Total de e⁻ de valencia:</b></label><input id="m1" class="inp num" type="number" inputmode="numeric" min="0"></div><div id="m1fb" role="status" aria-live="polite"></div>';
+        b.appendChild(actions(() => {
+          const a = parseInt($('#m1').value, 10), fb = $('#m1fb');
+          if (a === tot) { this.complete(1); toast('¡Correcto! ' + tot + ' e⁻'); return; }
+          let m = 'Repasa: los e⁻ de valencia coinciden con el grupo (H 1, Be 2, B 3, C/Si 4, N/P 5, O/S 6, halógenos 7, Xe 8).';
+          if (isNaN(a)) m = 'Escribe un número.';
+          else if (sp.charge && a === noQ) m = 'Te has olvidado de la carga: un ion negativo tiene e⁻ <b>de más</b> y uno positivo <b>de menos</b>.';
+          else if (sp.charge && a === noQ + sp.charge) m = 'La carga va al revés: carga negativa = electrones extra (se suman).';
+          fb.innerHTML = msgBox('bad', 'No es correcto', m);
+        }, () => this.complete(1, true)));
+      }
+      card(1, 'Electrones de valencia', b);
+    }
+    // ---- Paso 2: átomo central
+    {
+      const b = el('div');
+      if (this.done.has(2)) b.innerHTML = '<p>Átomo central: <b style="color:var(--central);font-size:1.2rem">' + sp.central + '</b>. ' + (Object.keys(sp.atoms).length > 1 ? 'Es el menos electronegativo (sin contar el H, que solo forma 1 enlace).' : 'Todos los átomos son iguales: el central es el del medio.') + '</p>';
+      else {
+        b.innerHTML = '<p>¿Qué átomo va en el centro?</p><div class="chips" id="m2"></div><div id="m2fb" role="status" aria-live="polite"></div>';
+        Object.keys(sp.atoms).forEach(s => {
+          const c = el('button', 'chip', s); c.type = 'button';
+          c.addEventListener('click', () => {
+            if (s === sp.central) { this.complete(2); return; }
+            $('#m2fb').innerHTML = msgBox('bad', 'Ese no', s === 'H' ? 'El H solo puede formar 1 enlace: nunca es el átomo central.' : 'Suele ser central el <b>menos electronegativo</b> (sin contar el H), el que puede formar más enlaces.');
+          });
+          $('#m2', b).appendChild(c);
+        });
+        b.appendChild(actions(null, () => this.complete(2, true)));
+      }
+      card(2, 'Elige el átomo central', b);
+    }
+    // ---- Paso 3: estructura de Lewis
+    {
+      const b = el('div');
+      const bondE = sp.lig.reduce((t, l) => t + 2 * l.o, 0), ligLP = sp.lig.reduce((t, l) => t + 2 * l.lp, 0);
+      if (this.done.has(3)) {
+        b.innerHTML = '<p>Comprobación: enlaces ' + bondE + ' e⁻ + pares libres de los ligandos ' + ligLP + ' e⁻ + pares libres del central ' + 2 * sp.E + ' e⁻ = <b>' + (bondE + ligLP + 2 * sp.E) + ' e⁻</b> ✓</p>' + (sp.note ? msgBox('info', 'Nota', sp.note) : '');
+        $('#mLewis').innerHTML = lewisSVG(sp);
+      } else {
+        $('#mLewis').innerHTML = '<p class="muted small" style="padding:20px;text-align:center">Dibújala en tu papel y luego compárala aquí.</p>';
+        b.innerHTML = '<ol class="small"><li>Une el central con cada átomo mediante un enlace sencillo.</li><li>Completa el octeto de los átomos de fuera (el H solo 2 e⁻).</li><li>Los e⁻ que sobren van al átomo central como <b>pares libres</b>.</li><li>Si al central le faltan e⁻, forma enlaces dobles o triples.</li></ol>';
+        const r = el('div', 'row'); const s = el('button', 'btn primary sm', 'Ya la tengo: mostrar la de referencia'); s.type = 'button';
+        s.addEventListener('click', () => this.complete(3, true)); r.appendChild(s); b.appendChild(r);
+      }
+      card(3, 'Dibuja la estructura de Lewis', b);
+    }
+    // ---- Paso 4: dominios
+    {
+      const b = el('div');
+      if (this.done.has(4)) b.innerHTML = '<p>X = <b>' + sp.X + '</b> ' + plural(sp.X, 'átomo unido', 'átomos unidos') + ' · E = <b>' + sp.E + '</b> ' + plural(sp.E, 'par libre', 'pares libres') + ' en el ' + sp.central + ' → <b style="font-size:1.25rem">' + notation(sp.X, sp.E) + '</b> → ' + g.D + ' dominios.</p>' + (sumOrders(sp) !== sp.X ? '<p class="small muted">Los enlaces múltiples cuentan como 1 dominio cada uno.</p>' : '');
+      else {
+        b.innerHTML = '<p>Cuenta alrededor del <b>átomo central</b> (' + sp.central + '):</p><div class="row"><label class="small" for="m4x"><b>X</b> (átomos unidos)</label><input id="m4x" class="inp num" type="number" min="0" inputmode="numeric"><label class="small" for="m4e"><b>E</b> (pares libres del central)</label><input id="m4e" class="inp num" type="number" min="0" inputmode="numeric"></div><div id="m4fb" role="status" aria-live="polite"></div>';
+        b.appendChild(actions(() => {
+          const x = parseInt($('#m4x').value, 10), e = parseInt($('#m4e').value, 10), msgs = [];
+          if (x !== sp.X) msgs.push(x === sumOrders(sp) ? 'X: has contado los enlaces múltiples como varios dominios. Un doble o triple enlace es <b>un</b> dominio: X = nº de <b>átomos</b> unidos.' : 'X es el número de <b>átomos</b> unidos al central (da igual que el enlace sea simple, doble o triple).');
+          const ligLPn = sp.lig.reduce((t, l) => t + l.lp, 0);
+          if (e !== sp.E) msgs.push(ligLPn && e === sp.E + ligLPn ? 'E: solo cuentan los pares libres del átomo <b>central</b>, no los de los ligandos.' : (e === 0 && sp.E > 0 ? 'E: te has olvidado de los pares libres del ' + sp.central + '. Míralos en la estructura de Lewis.' : 'E: cuenta los pares de puntos que hay sobre el ' + sp.central + ' en la estructura de Lewis.'));
+          if (isNaN(x) || isNaN(e)) { $('#m4fb').innerHTML = msgBox('bad', '', 'Rellena X y E.'); return; }
+          if (!msgs.length) { this.complete(4); return; }
+          $('#m4fb').innerHTML = msgBox('bad', 'Revisa', msgs.join('<br>'));
+        }, () => this.complete(4, true)));
+      }
+      card(4, 'Cuenta los dominios del átomo central', b);
+    }
+    // ---- Paso 5: geometría, ángulo, hibridación, polaridad
+    {
+      const b = el('div');
+      const isIon = sp.polar === null;
+      const FIELDS = [
+        { id: 'elec', t: 'Geometría electrónica', opts: [2, 3, 4, 5, 6].map(d => ELEC_NAME[d]), ok: g.elec },
+        { id: 'mol', t: 'Geometría molecular', opts: MOL_NAMES, ok: g.mol },
+        { id: 'ang', t: 'Ángulo de enlace', opts: Object.keys(ANGLE_CATS).filter(k => k !== 'none').map(k => ANGLE_CATS[k]), ok: ANGLE_CATS[g.angleCat] },
+        { id: 'hyb', t: 'Hibridación del central', opts: ['sp', 'sp²', 'sp³', 'sp³d', 'sp³d²'], ok: g.hyb }
+      ];
+      if (!isIon) FIELDS.push({ id: 'pol', t: '¿Es polar?', opts: ['Sí, polar', 'No, apolar'], ok: sp.polar ? 'Sí, polar' : 'No, apolar' });
+      if (this.done.has(5)) {
+        b.innerHTML = '<dl class="kv">' + FIELDS.map(f => '<dt>' + f.t + '</dt><dd>' + f.ok + (f.id === 'ang' ? '<span class="sub">' + angleText(sp) + '</span>' : '') + '</dd>').join('') + (isIon ? '<dt>Polaridad</dt><dd>Ion<span class="sub">' + sp.polarWhy + '</span></dd>' : '') + '</dl>' +
+          '<details open><summary>Respuesta completa tipo PAU</summary>' + modelAnswer(sp) + '</details>';
+        $('#mLock').style.display = 'none';
+        this.v.setMolecule(speciesSpec(sp)); this.v.setCaption(sp.f + ' · ' + g.mol);
+      } else {
+        $('#mLock').style.display = '';
+        b.innerHTML = '<p>Con ' + notation(sp.X, sp.E) + ' (' + g.D + ' dominios), deduce:</p><div class="mgrid">' +
+          FIELDS.map(f => '<label>' + f.t + '<select class="inp" id="m5' + f.id + '"><option value="">— elige —</option>' + f.opts.map(o => '<option>' + o + '</option>').join('') + '</select><span id="m5' + f.id + 'fb"></span></label>').join('') + '</div>' + '<div id="m5fb" role="status" aria-live="polite"></div>';
+        b.appendChild(actions(() => {
+          let all = true; const tips = [];
+          FIELDS.forEach(f => {
+            const v = $('#m5' + f.id).value, fbx = $('#m5' + f.id + 'fb'), ok = v === f.ok; all = all && ok;
+            fbx.className = ok ? 'ok-mark' : 'bad-mark'; fbx.textContent = ok ? '✓ Correcto' : (v ? '✗ Revisa' : '✗ Falta');
+            if (!ok && v) {
+              if (f.id === 'mol' && v === g.elec && sp.E) tips.push('Geometría molecular: has puesto la electrónica. Los pares libres no se “ven”.');
+              if (f.id === 'elec' && v === g.mol && sp.E) tips.push('Geometría electrónica: incluye los pares libres (' + g.D + ' dominios).');
+              if (f.id === 'ang' && v === ANGLE_CATS[g.idealCat] && g.idealCat !== g.angleCat) tips.push('Ángulo: ese es el ideal; los pares libres lo cierran.');
+              if (f.id === 'hyb') tips.push('Hibridación: ' + g.D + ' dominios → ' + g.hyb + ' (cuenta también los pares libres).');
+              if (f.id === 'pol') tips.push('Polaridad: ' + sp.polarWhy);
+            }
+          });
+          if (all) { this.complete(5); toast('¡Perfecto! Mira el modelo 3D.'); return; }
+          $('#m5fb').innerHTML = tips.length ? msgBox('bad', 'Pistas', tips.join('<br>')) : '';
+        }, () => this.complete(5, true)));
+      }
+      card(5, 'Geometría → ángulo → hibridación → polaridad', b);
+    }
+  }
+};
+
+/* ============================================================================
+   8. PREDICE ANTES DE MIRAR
+   ============================================================================ */
+const Predict = {
+  mode: 'seq', idx: 0, sp: null, qs: [], ans: {}, checked: false,
+  stats: store.get('trepev-stats', { answered: 0, correct: 0, cases: 0, perfect: 0, streak: 0, best: 0, errors: {} }),
+  init() {
+    this.v = createViewer($('#predictViewer'), { label: 'Resultado en 3D de la predicción' });
+    const setMode = m => { this.mode = m; ['Seq', 'Rand', 'Pau'].forEach(x => $('#pMode' + x).setAttribute('aria-pressed', m === x.toLowerCase())); this.next(true); };
+    $('#pModeSeq').addEventListener('click', () => setMode('seq'));
+    $('#pModeRand').addEventListener('click', () => setMode('rand'));
+    $('#pModePau').addEventListener('click', () => setMode('pau'));
+    this.renderStats(); this.renderDiag();
+    this.load(SP[PREDICT_ORDER[0]]);
+  },
+  save() { store.set('trepev-stats', this.stats); },
+  next(reset) {
+    if (this.mode === 'seq') {
+      if (reset) this.idx = 0; else this.idx++;
+      if (this.idx >= PREDICT_ORDER.length) { this.finished(); return; }
+      this.load(SP[PREDICT_ORDER[this.idx]]);
+    } else {
+      let sp; do { sp = SPECIES[Math.floor(Math.random() * SPECIES.length)]; } while (this.sp && sp.id === this.sp.id);
+      this.load(sp);
+    }
+  },
+  finished() {
+    const c = $('#pCard');
+    c.innerHTML = '<span class="label">Serie completada</span><h2>¡Has terminado los 15 casos! 🎉</h2><p>Llevas ' + this.stats.correct + ' respuestas correctas de ' + this.stats.answered + '. Revisa tu diagnóstico de errores y practica al azar para afianzar.</p><div class="row"><button class="btn primary" type="button" id="pAgain">Repetir los 15</button><button class="btn" type="button" id="pRand">Practicar al azar</button></div>';
+    $('#pAgain').addEventListener('click', () => this.next(true));
+    $('#pRand').addEventListener('click', () => $('#pModeRand').click());
+  },
+  lock(on) { $('#pLock').style.opacity = on ? 1 : 0; $('#pLock').style.pointerEvents = on ? '' : 'none'; },
+
+  /** Genera las preguntas con distractores "inteligentes" que delatan errores típicos */
+  buildQs(sp) {
+    const g = geoOf(sp), D = g.D, X = sp.X, E = sp.E, dp = sumOrders(sp) + E;
+    const qs = [];
+    const add = (arr, v, err) => { if (v && !arr.some(o => o.v === v)) arr.push({ v, err }); };
+    const fill = (arr, pool, n) => { shuffle(pool).forEach(v => { if (arr.length < n) add(arr, v, 'other'); }); };
+    // Geometría molecular
+    let o = []; add(o, g.mol, null);
+    if (E) add(o, g.elec, 'elec_vs_mol');
+    if (E && GEOMETRIES[X + ',0']) add(o, GEOMETRIES[X + ',0'].mol, 'ignored_lp');
+    if (dp !== D && dp <= 6) add(o, ELEC_NAME[dp], 'double_as_two');
+    fill(o, MOL_NAMES, 4);
+    qs.push({ id: 'geo', t: 'Geometría molecular', opts: shuffle(o), ok: g.mol });
+    // Ángulo
+    o = []; add(o, ANGLE_CATS[g.angleCat], null);
+    if (g.idealCat !== g.angleCat) add(o, ANGLE_CATS[g.idealCat], 'angle_ideal');
+    if (E && GEOMETRIES[X + ',0']) add(o, ANGLE_CATS[GEOMETRIES[X + ',0'].angleCat], 'ignored_lp');
+    if (dp !== D && dp <= 6) add(o, ANGLE_CATS[IDEAL_ANGLE_BY_D[dp]], 'double_as_two');
+    fill(o, Object.keys(ANGLE_CATS).filter(k => k !== 'none' && k !== 'seesaw').map(k => ANGLE_CATS[k]), 4);
+    qs.push({ id: 'ang', t: 'Ángulo de enlace aproximado', opts: shuffle(o), ok: ANGLE_CATS[g.angleCat] });
+    // Hibridación (orden fijo)
+    o = ['sp', 'sp²', 'sp³', 'sp³d', 'sp³d²'].map(h => {
+      if (h === g.hyb) return { v: h, err: null };
+      if (E && HYB[X] === h) return { v: h, err: 'ignored_lp' };
+      if (dp !== D && HYB[dp] === h) return { v: h, err: 'double_as_two' };
+      return { v: h, err: 'hyb' };
+    });
+    qs.push({ id: 'hyb', t: 'Hibridación del átomo central', opts: o, ok: g.hyb });
+    // Polaridad (no se pregunta en iones)
+    if (sp.polar !== null) qs.push({ id: 'pol', t: '¿Es una molécula polar?', opts: [{ v: 'Sí, polar', err: sp.polar ? null : 'polar_bonds' }, { v: 'No, apolar', err: sp.polar ? 'polar_asym' : null }], ok: sp.polar ? 'Sí, polar' : 'No, apolar' });
+    return qs;
+  },
+  /** Feedback específico: qué paso del razonamiento ha fallado */
+  explain(sp, q, opt) {
+    const g = geoOf(sp), dp = sumOrders(sp) + sp.E, ce = sp.central;
+    const lp = sp.E === 1 ? 'el par libre' : 'los ' + sp.E + ' pares libres';
+    switch (opt.err) {
+      case 'elec_vs_mol': return 'Has dado la geometría <b>electrónica</b> (' + g.elec.toLowerCase() + '). El ' + ce + ' tiene ' + lp + ', que no se “ven”: la forma de los átomos es <b>' + g.mol.toLowerCase() + '</b>.';
+      case 'ignored_lp': return 'Te has olvidado de ' + lp + ' del ' + ce + '. Son ' + sp.X + ' enlaces + ' + sp.E + ' libres = <b>' + g.D + ' dominios</b> → ' + g.elec.toLowerCase() + ' → ' + g.mol.toLowerCase() + (q.id === 'hyb' ? ' → ' + g.hyb : '') + '.';
+      case 'double_as_two': return 'Has contado los enlaces múltiples como varios dominios (te salen ' + dp + '). Cada enlace doble o triple es <b>un</b> dominio: ' + sp.X + ' + ' + sp.E + ' = <b>' + g.D + '</b>.';
+      case 'angle_ideal': return 'Ese es el ángulo ideal de la figura ' + g.elec.toLowerCase() + '. Los pares libres repelen más y lo cierran: <b>' + angleText(sp) + '</b>.';
+      case 'polar_bonds': return 'Los enlaces sí son polares, pero la geometría es simétrica: ' + sp.polarWhy;
+      case 'polar_asym': return 'No es simétrica: ' + sp.polarWhy;
+      case 'hyb': return 'La hibridación sale del nº de dominios: ' + g.D + ' → <b>' + g.hyb + '</b>.';
+      default: return 'La respuesta es <b>' + q.ok + '</b>. Repasa: ' + sp.X + ' enlazantes + ' + sp.E + ' libres = ' + g.D + ' dominios → ' + g.elec.toLowerCase() + ' → ' + g.mol.toLowerCase() + '.';
+    }
+  },
+  load(sp) {
+    this.sp = sp; this.ans = {}; this.checked = false; this.lock(true);
+    if (this.mode === 'pau') { this.renderPau(); return; }
+    this.qs = this.buildQs(sp);
+    this.renderReminder();
+    this.renderCard();
+  },
+  renderReminder() {
+    const e = Object.entries(this.stats.errors).sort((a, b) => b[1] - a[1])[0];
+    $('#pReminder').innerHTML = e && e[1] >= 2 ? '<div class="msg warn reminder"><span aria-hidden="true">💡</span><div><b class="t">Ojo con tu error más frecuente: ' + ERRORS[e[0]].name.toLowerCase() + '</b>' + ERRORS[e[0]].tip + '</div></div>' : '';
+  },
+  renderCard() {
+    const sp = this.sp, c = $('#pCard'), isIon = sp.polar === null;
+    const head = this.mode === 'seq' ? 'Caso ' + (this.idx + 1) + ' de ' + PREDICT_ORDER.length : 'Práctica al azar';
+    c.innerHTML = '<div class="row" style="justify-content:space-between"><span class="label" style="margin:0">' + head + '</span>' + (isIon ? '<span class="badge amp">Ion</span>' : '') + '</div>' +
+      '<div class="formula-big">' + sp.f + '</div><div class="muted">' + sp.name + ' · predice antes de mirar</div>' +
+      '<div id="pQs"></div><div class="row" style="margin-top:16px"><button class="btn primary" type="button" id="pCheck" disabled>Comprobar</button><button class="btn" type="button" id="pHint">💡 Pista</button><button class="btn" type="button" id="pNext">' + (this.checked ? 'Siguiente caso →' : 'Saltar') + '</button></div><div id="pHintBox" role="status" aria-live="polite"></div>';
+    const qbox = $('#pQs', c);
+    this.qs.forEach(q => {
+      const b = el('div', 'qblock'); b.innerHTML = '<h4>' + q.t + '</h4><div class="opts inline" role="group" aria-label="' + q.t + '"></div><div class="fb" role="status" aria-live="polite"></div>';
+      q.opts.forEach(o => {
+        const btn = el('button', 'opt'); btn.textContent = o.v; btn.type = 'button'; btn.setAttribute('aria-pressed', 'false');
+        btn.addEventListener('click', () => {
+          if (this.checked) return;
+          this.ans[q.id] = o; $$('.opt', b).forEach(x => x.setAttribute('aria-pressed', x === btn));
+          $('#pCheck').disabled = Object.keys(this.ans).length < this.qs.length;
+        });
+        $('.opts', b).appendChild(btn);
+      });
+      q.el = b; qbox.appendChild(b);
+    });
+    $('#pCheck').addEventListener('click', () => this.check());
+    $('#pNext').addEventListener('click', () => this.next());
+    $('#pHint').addEventListener('click', () => { const e = ELEMENTS[sp.central]; $('#pHintBox').innerHTML = msgBox('info', 'Pista', 'El átomo central es el <b>' + sp.central + '</b> (' + e.val + ' e⁻ de valencia). Total de la especie: ' + valenceTotal(sp) + ' e⁻. Dibuja la estructura de Lewis y cuenta X y E.'); });
+  },
+  check() {
+    if (this.checked) return;
+    this.checked = true;
+    const sp = this.sp, g = geoOf(sp); let ok = 0;
+    this.qs.forEach(q => {
+      const a = this.ans[q.id], good = a.v === q.ok;
+      $$('.opt', q.el).forEach(btn => { btn.disabled = true; if (btn.textContent === q.ok) btn.classList.add('correct'); else if (btn.textContent === a.v) btn.classList.add('wrong'); });
+      if (good) ok++;
+      else { const err = a.err || 'other'; this.stats.errors[err] = (this.stats.errors[err] || 0) + 1; }
+      $('.fb', q.el).innerHTML = good ? '<span class="ok-mark">✓ Correcto' + (q.id === 'ang' && sp.angle ? ' (real: ' + sp.angle + ')' : '') + '</span>' : msgBox('bad', 'Dónde está el fallo', this.explain(sp, q, a));
+    });
+    const S = this.stats; S.answered += this.qs.length; S.correct += ok; S.cases++;
+    if (ok === this.qs.length) { S.perfect++; S.streak++; S.best = Math.max(S.best, S.streak); toast(S.streak >= 3 ? '¡Racha de ' + S.streak + '! 🔥' : '¡Todo correcto!'); }
+    else S.streak = 0;
+    this.save(); this.renderStats(); this.renderDiag();
+    $('#pCheck').disabled = true; $('#pNext').textContent = 'Siguiente caso →';
+    $('#pCard').insertAdjacentHTML('beforeend', msgBox(ok === this.qs.length ? 'ok' : 'info', ok + ' de ' + this.qs.length + ' correctas', notation(sp.X, sp.E) + ': ' + g.elec.toLowerCase() + ' → <b>' + g.mol.toLowerCase() + '</b>, ' + angleText(sp) + ', ' + g.hyb + '. ' + sp.polarWhy));
+    this.reveal();
+  },
+  reveal() { this.lock(false); this.v.setMolecule(speciesSpec(this.sp)); this.v.setCaption(this.sp.f + ' · ' + geoOf(this.sp).mol); },
+  renderStats() {
+    const S = this.stats, pct = S.answered ? Math.round(100 * S.correct / S.answered) : 0;
+    $('#pStats').innerHTML =
+      '<div class="stat"><small>Aciertos</small><b>' + S.correct + '/' + S.answered + '</b></div>' +
+      '<div class="stat"><small>Porcentaje</small><b>' + pct + '%</b></div>' +
+      '<div class="stat"><small>Racha</small><b>' + S.streak + (S.streak >= 3 ? ' 🔥' : '') + '</b></div>' +
+      '<div class="stat"><small>Mejor racha</small><b>' + S.best + '</b></div>' +
+      '<div class="stat"><small>Casos perfectos</small><b>' + S.perfect + '/' + S.cases + '</b></div>';
+  },
+  renderDiag() {
+    const errs = Object.entries(this.stats.errors).sort((a, b) => b[1] - a[1]), max = errs.length ? errs[0][1] : 1;
+    let h = '<h3>Diagnóstico de errores</h3>';
+    if (!errs.length) h += '<p class="muted small">Aún no hay errores registrados. Cada fallo se clasifica aquí según el paso del razonamiento en que ocurre.</p>';
+    else {
+      h += msgBox('warn', 'Tu error más frecuente', '<b>' + ERRORS[errs[0][0]].name + '.</b> ' + ERRORS[errs[0][0]].tip);
+      h += errs.map(([k, n]) => '<div class="diag-row"><span>' + ERRORS[k].name + '</span><b style="text-align:right">' + n + '</b><span class="bar"><i style="width:' + Math.round(100 * n / max) + '%"></i></span></div>').join('');
+    }
+    h += '<button class="btn sm" type="button" id="pReset" style="margin-top:10px">Reiniciar estadísticas</button>';
+    $('#pDiag').innerHTML = h;
+    $('#pReset').addEventListener('click', () => { if (!confirm('¿Borrar aciertos, rachas y diagnóstico?')) return; this.stats = { answered: 0, correct: 0, cases: 0, perfect: 0, streak: 0, best: 0, errors: {} }; this.save(); this.renderStats(); this.renderDiag(); this.renderReminder(); });
+  },
+  /* ---------- Modo pregunta tipo PAU con autoevaluación ---------- */
+  renderPau() {
+    const sp = this.sp, isIon = sp.polar === null, c = $('#pCard');
+    $('#pReminder').innerHTML = '';
+    const art = isIon ? 'del ion' : 'de la molécula de';
+    c.innerHTML = '<span class="label">Pregunta tipo PAU</span>' +
+      '<p style="font-size:1.08rem"><b>Para la especie química ' + sp.f + ':</b><br>a) Represente su estructura de Lewis.<br>b) Justifique la geometría ' + art + ' ' + sp.f + ' según la TRePEV e indique el valor aproximado del ángulo de enlace.<br>c) ' + (isIon ? 'Indique la hibridación del átomo central.' : 'Razone si la molécula es polar.') + '</p>' +
+      '<label class="label" for="pauTxt">Tu respuesta (opcional, se queda en tu navegador)</label><textarea id="pauTxt" class="inp" placeholder="Escribe aquí tu razonamiento como en el examen…"></textarea>' +
+      '<div class="row" style="margin-top:10px"><button class="btn primary" type="button" id="pauShow">Ver respuesta modelo y autoevaluarme</button><button class="btn" type="button" id="pauNext">Otra pregunta</button></div><div id="pauModel"></div>';
+    $('#pauNext').addEventListener('click', () => this.next());
+    $('#pauShow').addEventListener('click', () => {
+      const items = [
+        ['Estructura de Lewis correcta, con los pares libres del átomo central', 0.5],
+        ['Nº de dominios del central: X enlazantes + E libres (' + notation(sp.X, sp.E) + ')', 0.25],
+        ['Geometría electrónica nombrada (' + geoOf(sp).elec.toLowerCase() + ')', 0.25],
+        ['Geometría molecular, distinguiéndola de la electrónica (' + geoOf(sp).mol.toLowerCase() + ')', 0.5],
+        ['Ángulo aproximado' + (sp.E ? ' y por qué es menor que el ideal' : '') + ' (' + angleText(sp) + ')', 0.25],
+        isIon ? ['Hibridación del átomo central (' + geoOf(sp).hyb + ')', 0.25] : ['Polaridad razonada con la geometría y los dipolos de enlace', 0.25]
+      ];
+      $('#pauModel').innerHTML = '<div class="card" style="margin-top:12px;background:var(--surface-2)"><span class="label">Respuesta modelo</span><div class="svgbox" style="background:var(--surface)">' + lewisSVG(sp, true) + '</div>' + modelAnswer(sp) + '</div>' +
+        '<div class="rubric" style="margin-top:12px"><span class="label">Autoevaluación: marca lo que incluiste</span>' + items.map((it, i) => '<label><input type="checkbox" data-p="' + it[1] + '" id="rb' + i + '"><span>' + it[0] + ' <b class="muted">(' + String(it[1]).replace('.', ',') + ' p)</b></span></label>').join('') + '</div><div class="msg info" id="pauScore" role="status" aria-live="polite">Tu nota: 0 / 2 puntos</div>';
+      $$('#pauModel input').forEach(i => i.addEventListener('change', () => {
+        const s = $$('#pauModel input').reduce((t, x) => t + (x.checked ? +x.dataset.p : 0), 0);
+        $('#pauScore').innerHTML = 'Tu nota: <b>' + s.toFixed(2).replace('.', ',').replace(/,?0+$/, '') + ' / 2 puntos</b>' + (s >= 2 ? ' · ¡Respuesta completa! 🎯' : s >= 1.5 ? ' · Muy bien, revisa lo que falta.' : '');
+      }));
+      this.reveal();
+    });
+  }
+};
+
+/* ============================================================================
+   9. TABLA Y CHULETA
+   ============================================================================ */
+const Table = {
+  init() {
+    const tb = $('#vseprTable tbody');
+    TABLE_ORDER.forEach(f => {
+      tb.insertAdjacentHTML('beforeend', '<tr class="fam"><td colspan="8">' + f.fam + '</td></tr>');
+      f.rows.forEach(k => {
+        const g = GEOMETRIES[k], tr = el('tr');
+        tr.tabIndex = 0; tr.setAttribute('aria-label', 'Abrir ' + g.mol + ' en el laboratorio');
+        tr.innerHTML = '<td class="nt">' + notation(g.X, g.E) + '</td><td>' + g.D + '</td><td>' + g.elec + '</td><td><b>' + g.mol + '</b></td><td>' + g.tableAngle + '</td><td>' + g.hyb + (g.D >= 5 ? ' <span class="badge amp">amp.</span>' : '') + '</td><td>' + g.examples + '</td><td>' + (g.level === 'ess' ? '<span class="badge ess">★ Imprescindible</span>' : '<span class="badge amp">+ Ampliación</span>') + '</td>';
+        const open = () => { Lab.loadSpecies(SP[g.exampleId]); showTab('lab'); toast('Abierto en el Laboratorio: ' + notation(g.X, g.E) + ' · ' + g.mol); };
+        tr.addEventListener('click', open);
+        tr.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+        tb.appendChild(tr);
+      });
+    });
+    const ERR = [
+      { t: 'Confundir geometría electrónica y molecular', sp: 'NH3', no: 'NH₃ es tetraédrica', yes: 'Electrónica tetraédrica, pero molecular <b>pirámide trigonal</b>', btn: 'Verlo: quitar pares libres', act: () => { Lab.loadSpecies(SP.NH3); showTab('lab'); setTimeout(() => Lab.setOpt('showLP', false, true), 900); } },
+      { t: 'Contar el doble enlace como 2 dominios', sp: 'CO2', no: 'O=C=O: 4 dominios → tetraédrica', yes: '2 dominios → <b>lineal, 180°</b>', btn: 'Ver la animación', act: () => { showTab('why'); Why.go(3); } },
+      { t: 'Olvidar los pares libres del átomo central', sp: 'H2O', no: 'H₂O lineal, como el CO₂', yes: '2 pares libres en el O → <b>angular, ≈104,5°</b>', btn: 'Verlo en 3D', act: () => { Lab.loadSpecies(SP.H2O); showTab('lab'); } },
+      { t: 'Contar los pares libres de los ligandos', sp: 'BF3', no: '3 enlaces + 9 pares de los F → ¡12 dominios!', yes: 'Solo cuenta el <b>B</b>: 3 dominios → <b>trigonal plana</b>', btn: 'Verlo en 3D', act: () => { Lab.loadSpecies(SP.BF3); showTab('lab'); } },
+      { t: 'Confundir geometría con polaridad', sp: 'CHCl3', no: 'Enlaces polares ⇒ molécula polar; tetraédrica ⇒ apolar', yes: 'CO₂ es <b>apolar</b> (simétrica) y CHCl₃ es <b>polar</b> aunque sea tetraédrica', btn: 'Ver los dipolos', act: () => { showTab('why'); Why.go(5); } },
+      { t: 'Dar el ángulo ideal habiendo pares libres', sp: 'NH3', no: 'NH₃: 109,5°', yes: '<b>≈107°</b>: el par libre cierra el ángulo', btn: 'Ver CH₄ → NH₃ → H₂O', act: () => { showTab('why'); Why.go(2); } }
+    ];
+    const grid = $('#errGrid');
+    ERR.forEach(e => {
+      const c = el('div', 'card err-card');
+      c.innerHTML = '<h3>' + e.t + '</h3><div class="svgbox">' + lewisSVG(SP[e.sp], true) + '</div><div class="vs"><div class="no"><b>✗ Mal</b>' + e.no + '</div><div class="yes"><b>✓ Bien</b>' + e.yes + '</div></div>';
+      const b = el('button', 'btn soft', e.btn); b.type = 'button'; b.addEventListener('click', e.act); c.appendChild(b);
+      grid.appendChild(c);
+    });
+  }
+};
+
+/* ============================================================================
+   10. ARRANQUE
+   ============================================================================ */
+(function selfCheck() {
+  // Comprobación de rigor: los electrones de cada estructura de Lewis cuadran con la valencia total
+  SPECIES.forEach(sp => {
+    const placed = sp.lig.reduce((t, l) => t + 2 * l.o + 2 * l.lp, 0) + 2 * sp.E;
+    if (placed !== valenceTotal(sp)) console.warn('Lewis descuadrada:', sp.id, placed, valenceTotal(sp));
+    if (!GEOMETRIES[sp.X + ',' + sp.E]) console.warn('Geometría inexistente:', sp.id);
+    if (sp.lig.length !== sp.X) console.warn('Nº de ligandos ≠ X:', sp.id);
+  });
+})();
+initTheme();
+Lab.init();
+Why.init();
+Method.init();
+Predict.init();
+Table.init();
+initTabs();
+window.addEventListener('hashchange', () => showTab(location.hash.slice(1)));
+</script>
+</body>
+</html>
